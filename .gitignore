@@ -1,0 +1,9 @@
+# Dependencies & caches
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+
+# Sensitive credentials
+.env
+.env.local

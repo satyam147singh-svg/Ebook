@@ -1,0 +1,487 @@
+/* Admin Portal Stylesheet */
+.admin-body {
+    background-color: #070913;
+    color: #f8fafc;
+    min-height: 100vh;
+    padding-bottom: 60px;
+}
+
+.admin-header {
+    background: #0f142b;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 18px 0;
+    margin-bottom: 36px;
+}
+
+.admin-header-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.admin-title-group h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+}
+
+.admin-title-group p {
+    font-size: 0.85rem;
+    color: #94a3b8;
+}
+
+.admin-grid {
+    display: grid;
+    grid-template-columns: 380px 1fr;
+    gap: 30px;
+}
+
+.admin-card {
+    background: #0d122b;
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+}
+
+.admin-card h2 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    margin-bottom: 18px;
+    color: #00f0ff;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Orders Table */
+.table-responsive {
+    overflow-x: auto;
+}
+
+.orders-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.88rem;
+    text-align: left;
+}
+
+.orders-table th {
+    background: rgba(255, 255, 255, 0.04);
+    padding: 12px 14px;
+    color: #94a3b8;
+    font-weight: 600;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    white-space: nowrap;
+}
+
+.orders-table td {
+    padding: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    vertical-align: middle;
+}
+
+.orders-table tr:hover td {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.badge-status {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+}
+
+.badge-status.verified {
+    background: rgba(16, 185, 129, 0.15);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.badge-status.pending {
+    background: rgba(245, 158, 11, 0.15);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.table-action-btn {
+    padding: 6px 12px;
+    background: rgba(0, 240, 255, 0.1);
+    border: 1px solid rgba(0, 240, 255, 0.3);
+    color: #00f0ff;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.78rem;
+    font-weight: 600;
+    transition: 0.2s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.table-action-btn:hover {
+    background: #00f0ff;
+    color: #000;
+}
+
+.empty-state {
+    text-align: center;
+    padding: 50px 20px;
+    color: #64748b;
+}
+
+/* Tabs Navigation */
+.admin-tabs-nav {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 26px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    padding-bottom: 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.admin-tab-btn {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.admin-tab-btn:hover {
+    background: rgba(0, 240, 255, 0.08);
+    color: #00f0ff;
+    border-color: rgba(0, 240, 255, 0.3);
+}
+
+.admin-tab-btn.active {
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(121, 40, 202, 0.2));
+    border-color: #00f0ff;
+    color: #ffffff;
+    box-shadow: 0 4px 15px rgba(0, 240, 255, 0.2);
+}
+
+.admin-tab-pane {
+    display: none;
+}
+
+.admin-tab-pane.active {
+    display: block;
+    animation: fadeInTab 0.2s ease-out;
+}
+
+@keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Links Manager Table */
+.link-row-item {
+    display: grid;
+    grid-template-columns: 1fr 1fr 48px;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 10px;
+    background: rgba(255, 255, 255, 0.02);
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.btn-del-link {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    border-radius: 6px;
+    height: 40px;
+    cursor: pointer;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+}
+
+.btn-del-link:hover {
+    background: #ef4444;
+    color: #fff;
+}
+
+/* CMS Page Content Textareas & Fields */
+.cms-field-group {
+    margin-bottom: 22px;
+}
+
+.cms-field-group label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.88rem;
+    color: #cbd5e1;
+    margin-bottom: 6px;
+}
+
+.cms-field-group small {
+    display: block;
+    color: #64748b;
+    font-size: 0.76rem;
+    margin-top: 4px;
+}
+
+.cms-textarea {
+    width: 100%;
+    min-height: 80px;
+    background: rgba(15, 20, 43, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    padding: 12px;
+    color: #f8fafc;
+    font-family: inherit;
+    font-size: 0.9rem;
+    resize: vertical;
+    transition: 0.2s;
+}
+
+.cms-textarea:focus {
+    border-color: #00f0ff;
+    outline: none;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+}
+
+.branding-preview-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(0, 240, 255, 0.3);
+    border-radius: 12px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin: 18px 0;
+}
+
+@media (max-width: 950px) {
+    .admin-grid {
+        grid-template-columns: 1fr;
+    }
+    .link-row-item {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ==========================================================================
+   AFFILIATE & REWARDS STYLES
+   ========================================================================== */
+.urgent-partner-card {
+    background: rgba(15, 20, 43, 0.9);
+    border: 1px solid rgba(239, 68, 68, 0.4);
+    border-radius: 10px;
+    padding: 14px 18px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.affiliate-target-bar {
+    width: 100px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+
+.affiliate-target-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #10b981, #00f0ff);
+    border-radius: 999px;
+    transition: width 0.3s ease;
+}
+
+.affiliate-target-fill.complete {
+    background: linear-gradient(90deg, #f59e0b, #ef4444);
+    box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+.badge-target-complete {
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid #ef4444;
+    color: #f87171;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    animation: pulseBadge 2s infinite;
+}
+
+@keyframes pulseBadge {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.85; transform: scale(1.02); }
+}
+
+.badge-target-paid {
+    background: rgba(16, 185, 129, 0.2);
+    border: 1px solid #10b981;
+    color: #34d399;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+}
+
+.badge-target-progress {
+    background: rgba(59, 130, 246, 0.15);
+    border: 1px solid #3b82f6;
+    color: #60a5fa;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+}
+
+.affiliate-orders-accordion {
+    background: rgba(0, 0, 0, 0.35);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin-top: 10px;
+    border: 1px dashed rgba(255, 255, 255, 0.12);
+}
+
+/* ==========================================================================
+   COURSE & E-BOOK DRAG & DROP STYLES
+   ========================================================================== */
+.course-dropzone-wrapper {
+    position: relative;
+    border-radius: 16px;
+    cursor: pointer;
+    overflow: hidden;
+}
+
+.course-file-input-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+    z-index: 10;
+}
+
+.course-dropzone {
+    border: 2px dashed rgba(0, 240, 255, 0.4);
+    border-radius: 16px;
+    background: rgba(0, 240, 255, 0.02);
+    padding: 38px 20px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    user-select: none;
+    pointer-events: none; /* Clicks and drag events pass straight through to the native input! */
+}
+
+.course-dropzone-wrapper:hover .course-dropzone,
+.course-dropzone.drag-active {
+    border-color: #00f0ff;
+    border-style: solid;
+    background: rgba(0, 240, 255, 0.12);
+    box-shadow: 0 0 35px rgba(0, 240, 255, 0.35);
+    transform: scale(1.008);
+}
+
+.uploader-tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+
+.uploader-tab-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #94a3b8;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.uploader-tab-btn:hover {
+    color: #fff;
+    border-color: rgba(0, 240, 255, 0.4);
+    background: rgba(0, 240, 255, 0.08);
+}
+
+.uploader-tab-btn.active {
+    background: rgba(0, 240, 255, 0.15);
+    border-color: #00f0ff;
+    color: #00f0ff;
+    box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+}
+
+.parsed-chapter-item {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 8px;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    transition: all 0.2s ease;
+}
+
+.parsed-chapter-item:hover {
+    border-color: rgba(0, 240, 255, 0.3);
+    background: rgba(0, 240, 255, 0.04);
+}
+
+.parsed-chapter-item .ch-title-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    overflow: hidden;
+}
+
+.parsed-chapter-item .ch-idx {
+    background: rgba(0, 240, 255, 0.15);
+    color: #00f0ff;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+
+.parsed-chapter-item .ch-del-btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: all 0.15s ease;
+}
+
+.parsed-chapter-item .ch-del-btn:hover {
+    color: #ef4444;
+    background: rgba(239, 68, 68, 0.1);
+}
+

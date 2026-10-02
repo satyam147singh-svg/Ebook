@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Antigravity Master Guide - Secure Reader (DRM Protected)</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Reader Stylesheets -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="assets/css/reader.css">
+</head>
+<body class="reader-active">
+
+    <!-- DYNAMIC MOVING WATERMARK CANVAS -->
+    <canvas id="securityWatermarkCanvas"></canvas>
+
+    <!-- ANTI-SCREENSHOT & BLUR SHIELD (TRIGGERED ON FOCUS LOSS, PRINTSCREEN, OR TAB SWITCH) -->
+    <div id="antiScreenshotShield">
+        <div class="shield-icon">⚠️</div>
+        <h2 class="shield-title">Content Protected • Anti-Screenshot Shield Active</h2>
+        <p class="shield-desc" id="shieldReasonDesc">
+            Security focus lost. To prevent unauthorized screen capture, recording or extraction, the digital reader has been blurred.
+        </p>
+        <button id="btnResumeReading" class="shield-btn">
+            🔓 Resume Reading
+        </button>
+    </div>
+
+    <!-- AUTH GATEKEEPER (SHOWN IF ACCESSED WITHOUT VALID TOKEN) -->
+    <div id="readerAuthGate" style="display: none;">
+        <div class="gatekeeper-card">
+            <div class="gate-icon">🔐</div>
+            <h2 style="font-size: 1.5rem; margin-bottom: 8px;">DRM Protected Access</h2>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 24px;">
+                Is E-Book ko padhne ke liye aapke pass ek valid <strong>Access Token</strong> hona chahiye jo payment ke baad aapki email par bheja gaya hai.
+            </p>
+
+            <form id="gateVerifyForm" style="margin-bottom: 20px;">
+                <div class="form-group">
+                    <label class="form-label" style="text-align: left;">Email Address</label>
+                    <input type="email" id="gateEmailInput" class="form-input" placeholder="aapka-email@domain.com" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" style="text-align: left;">Access Token</label>
+                    <input type="text" id="gateTokenInput" class="form-input" placeholder="e.g. AGY-EBK-XXXX-YYYY" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px;">
+                    Unlock E-Book Reader
+                </button>
+            </form>
+
+            <div style="border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px; display: flex; justify-content: space-between; align-items: center;">
+                <a href="index.html" class="btn btn-secondary" style="font-size: 0.8rem; padding: 6px 12px;">← Buy E-Book</a>
+                <button type="button" id="btnDemoUnlock" class="table-action-btn">Instant Demo Preview 👁️</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- UNAUTHORIZED DEVICE / LINK SHARING DETECTED - IN-PAGE PAYMENT & ACCESS UNLOCK MODAL -->
+    <div id="deviceMismatchModal" style="display: none; position: fixed; inset: 0; background: rgba(7, 9, 19, 0.96); backdrop-filter: blur(25px); z-index: 3000000; align-items: center; justify-content: center; padding: 24px;">
+        <div class="gatekeeper-card wide-card" style="border-color: #ef4444; box-shadow: 0 0 50px rgba(239, 68, 68, 0.35);">
+            <div style="display: flex; align-items: center; gap: 14px; margin-bottom: 14px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+                <div style="font-size: 2.2rem;">🔒</div>
+                <div>
+                    <h2 style="font-size: 1.35rem; color: #f87171; margin-bottom: 4px; font-family: var(--font-heading);">
+                        Shared Link Detected! Unlock Your Own Copy
+                    </h2>
+                    <p style="color: #94a3b8; font-size: 0.82rem; margin: 0;">
+                        यह ई-बुक केवल मूल खरीदार के डिवाइस पर लॉक है। इसे पढ़ने के लिए नीचे दिए गए फॉर्म से अपना पर्सनल एक्सेस अनलॉक करें:
+                    </p>
+                </div>
+            </div>
+
+            <!-- IN-PAGE PAYMENT SECTION -->
+            <div style="display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start;" id="mismatchGrid">
+                
+                <!-- UPI SCANNER BOX -->
+                <div class="upi-qr-box" style="padding: 16px; margin-bottom: 0;">
+                    <div class="qr-canvas-container" id="readerUpiQrCodeCanvas" style="padding: 8px;">
+                        <!-- QR rendered by qrcode.min.js -->
+                    </div>
+
+                    <div class="upi-id-copy-row" style="font-size: 0.82rem; padding: 6px 10px; margin-bottom: 8px;">
+                        <span id="readerDisplayUpiId">antigravity.developer@upi</span>
+                        <button type="button" class="btn-copy-upi" id="readerBtnCopyUpi" onclick="copyReaderUpiId()">📋</button>
+                    </div>
+
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px;">
+                        Pay: <strong style="color: #00f0ff;" class="dynamic-price">₹199</strong>
+                    </p>
+
+                    <div class="upi-apps-row">
+                        <a href="#" class="upi-app-badge reader-upi-deep-link" style="font-size: 0.72rem; padding: 4px 10px;">GPay</a>
+                        <a href="#" class="upi-app-badge reader-upi-deep-link" style="font-size: 0.72rem; padding: 4px 10px;">PhonePe</a>
+                        <a href="#" class="upi-app-badge reader-upi-deep-link" style="font-size: 0.72rem; padding: 4px 10px;">Paytm</a>
+                    </div>
+                </div>
+
+                <!-- REGISTRATION & CONSENT FORM -->
+                <div>
+                    <form id="readerMismatchPaymentForm">
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.8rem;">Aapka Pura Naam (Full Name) <span class="req">*</span></label>
+                            <input type="text" id="readerBuyerName" class="form-input" style="padding: 8px 12px; font-size: 0.88rem;" placeholder="e.g. Vikas Verma" required>
+                        </div>
+
+                        <div class="form-group" style="margin-bottom: 12px;">
+                            <label class="form-label" style="font-size: 0.8rem;">Email Address (Access Link Is Email Par Jayega) <span class="req">*</span></label>
+                            <input type="email" id="readerBuyerEmail" class="form-input" style="padding: 8px 12px; font-size: 0.88rem;" placeholder="e.g. vikas@gmail.com" required>
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label" style="font-size: 0.8rem;">WhatsApp Number <span class="req">*</span></label>
+                                <input type="tel" id="readerBuyerPhone" class="form-input" style="padding: 8px 12px; font-size: 0.88rem;" placeholder="e.g. 9876543210" required>
+                            </div>
+                            <div class="form-group" style="margin-bottom: 12px;">
+                                <label class="form-label" style="font-size: 0.8rem;">UPI Ref / UTR (12 Digits) <span class="req">*</span></label>
+                                <input type="text" id="readerBuyerUtr" class="form-input" style="padding: 8px 12px; font-size: 0.88rem;" placeholder="e.g. 428901823901" required>
+                            </div>
+                        </div>
+
+                        <!-- MANDATORY CONSENT CHECKBOX -->
+                        <div class="consent-box" style="padding: 10px 12px; margin: 12px 0;">
+                            <input type="checkbox" id="readerBuyerConsentCheckbox" class="consent-checkbox" required>
+                            <label for="readerBuyerConsentCheckbox" class="consent-text" style="font-size: 0.78rem;">
+                                <strong>अनिवार्य सहमति (Consent):</strong><br>
+                                "मैं अपनी पूरी मर्ज़ी, सहमति और होश-ओ-हवास में बिना किसी दबाव के अपनी इच्छा से यह पेमेंट करके 'Google Antigravity Master Guide' डिजिटल ई-बुक खरीद रहा/रही हूँ।"
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+                            🚀 Pay & Unlock My E-Book Instantly
+                        </button>
+                    </form>
+                </div>
+
+            </div>
+
+            <!-- FOOTER NOTICE -->
+            <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px; margin-top: 16px; display: flex; justify-content: space-between; align-items: center; font-size: 0.78rem; color: #64748b;">
+                <span>Original Link Shared by: <code id="mismatchBuyerEmail" style="color: #94a3b8;">user@email.com</code></span>
+                <a href="#" id="btnTransferDeviceSupport" target="_blank" style="color: #00f0ff; text-decoration: none;">
+                    💬 Device Changed? Contact Admin
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN READER APPLICATION SHELL -->
+    <div class="reader-wrapper" id="readerApp">
+        
+        <!-- TOP CONTROLS BAR -->
+        <header class="reader-topbar">
+            <div class="reader-book-meta">
+                <a href="index.html" class="logo" style="font-size: 1rem;">
+                    <div class="logo-icon" id="reader-logo-icon" style="width: 30px; height: 30px; font-size: 0.9rem;">⚡</div>
+                    <span id="reader-site-name">Antigravity</span>
+                </a>
+                <span class="reader-book-title">Google Antigravity Master Guide</span>
+                <span class="drm-badge">
+                    <span>🔒</span> DRM Active
+                </span>
+            </div>
+
+            <div class="reader-controls">
+                <!-- LANGUAGE PILL SWITCHER -->
+                <div class="lang-toggle-group">
+                    <button class="lang-btn active" data-lang="hinglish">Hinglish</button>
+                    <button class="lang-btn" data-lang="hindi">हिंदी</button>
+                    <button class="lang-btn" data-lang="english">English</button>
+                </div>
+
+                <!-- FONT SIZE ADJUSTER -->
+                <button id="btnToggleFont" class="reader-icon-btn" title="Toggle Font Size">
+                    Aa
+                </button>
+
+                <!-- THEME SWITCHER -->
+                <button id="btnToggleTheme" class="reader-icon-btn" title="Toggle Theme (Dark, Slate, Sepia, Light)">
+                    🎨
+                </button>
+
+                <!-- FULLSCREEN -->
+                <button id="btnToggleFullscreen" class="reader-icon-btn" title="Fullscreen Mode">
+                    ⛶
+                </button>
+
+                <!-- EXIT / CLOSE -->
+                <a href="index.html" class="reader-icon-btn reader-close-btn" title="Exit Reader">
+                    ✕
+                </a>
+            </div>
+        </header>
+
+        <!-- SPLIT READER BODY (SIDEBAR + CONTENT VIEWPORT) -->
+        <div class="reader-split">
+            
+            <!-- SIDEBAR: TABLE OF CONTENTS & SEARCH -->
+            <aside class="reader-sidebar" id="readerSidebar">
+                <div class="sidebar-search-box">
+                    <input type="text" id="sidebarSearchInput" class="sidebar-search-input" placeholder="Search chapters...">
+                </div>
+
+                <ul class="sidebar-chapter-list" id="sidebarChapterList">
+                    <!-- Rendered by reader.js -->
+                </ul>
+            </aside>
+
+            <!-- READING VIEWPORT -->
+            <main class="reader-viewport theme-matrix" id="readerViewport">
+                <div class="reader-article font-md" id="readerArticleContainer">
+                    
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <span id="readerProgressLabel" style="font-family: var(--font-mono); font-size: 0.82rem; color: #8b5cf6; font-weight: 700;">
+                            Chapter 01 of 08
+                        </span>
+                        <span style="font-size: 0.78rem; color: #64748b;">Protected Digital View • No Download</span>
+                    </div>
+
+                    <h1 id="chapterHeading" style="font-family: var(--font-heading); font-size: 2.2rem; color: #f8fafc; margin-bottom: 24px; line-height: 1.25;">
+                        <!-- Dynamic Chapter Title -->
+                    </h1>
+
+                    <div id="chapterContentBody">
+                        <!-- Dynamic Chapter Body Content -->
+                    </div>
+
+                    <!-- PREVIOUS / NEXT CHAPTER FOOTER NAVIGATION -->
+                    <div class="reader-chapter-footer" id="readerChapterFooter">
+                        <!-- Rendered by reader.js -->
+                    </div>
+
+                </div>
+            </main>
+
+        </div>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/qrcode.min.js"></script>
+    <script src="assets/js/ebook-data.js"></script>
+    <script src="assets/js/reader.js"></script>
+    <script>
+        (function(){
+            try {
+                var s = JSON.parse(localStorage.getItem('antigravity_site_settings') || '{}');
+                if(s.siteName) {
+                    var el = document.getElementById('reader-site-name');
+                    if(el) el.innerHTML = s.siteName;
+                }
+                if(s.logoIcon) {
+                    var elIcon = document.getElementById('reader-logo-icon');
+                    if(elIcon) elIcon.textContent = s.logoIcon;
+                }
+            } catch(e){}
+        })();
+    </script>
+</body>
+</html>
