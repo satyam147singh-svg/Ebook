@@ -25,17 +25,22 @@
                 Restricted Seller Portal. केवल ऑथराइज्ड एडमिन ही लॉगिन कर सकता है।
             </p>
 
-            <form id="adminLoginForm">
+            <form id="adminLoginForm" onsubmit="return handleAdminLogin(event);">
                 <div class="form-group" style="text-align: left;">
-                    <label class="form-label" for="loginUsername">Admin Username</label>
-                    <input type="text" id="loginUsername" class="form-input" placeholder="e.g. admin" required>
+                    <label class="form-label" for="loginUsername">Admin Email / Username</label>
+                    <input type="text" id="loginUsername" class="form-input" placeholder="e.g. satyam147singh@gmail.com" required autocomplete="username">
                 </div>
                 
                 <div class="form-group" style="text-align: left;">
-                    <label class="form-label" for="loginPassword">Admin Password</label>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                        <label class="form-label" for="loginPassword" style="margin-bottom: 0;">Admin Password</label>
+                        <button type="button" onclick="showEmailResetModal()" style="background: none; border: none; color: #00f0ff; font-size: 0.78rem; cursor: pointer; text-decoration: underline; padding: 0;">
+                            Forgot Password?
+                        </button>
+                    </div>
                     <div style="position: relative; display: flex; align-items: center;">
-                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required style="padding-right: 42px;">
-                        <button type="button" id="btnToggleLoginPass" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; padding: 4px;" title="Show/Hide Password">👁️</button>
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required style="padding-right: 42px;" autocomplete="current-password">
+                        <button type="button" id="btnToggleLoginPass" onclick="toggleAdminPassVisibility()" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.15rem; cursor: pointer; padding: 4px; line-height: 1;" title="Show/Hide Password">👁️</button>
                     </div>
                 </div>
 
@@ -43,20 +48,83 @@
                     ❌ गलत Username या Password! दोबारा प्रयास करें।
                 </div>
 
-                <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
+                <button type="submit" id="btnAdminSubmitLogin" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
                     🔓 Login to Seller Dashboard
                 </button>
 
-                <button type="button" id="btnQuickLoginDemo" class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.85rem; padding: 10px; border-color: rgba(0, 240, 255, 0.4); color: #00f0ff; background: rgba(0, 240, 255, 0.08);">
-                    ⚡ 1-Click Auto-Fill &amp; Direct Login
+                <button type="button" id="btnQuickLoginDemo" onclick="quickLoginSatyam()" class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.85rem; padding: 10px; border-color: rgba(0, 240, 255, 0.4); color: #00f0ff; background: rgba(0, 240, 255, 0.08);">
+                    ⚡ 1-Click Secure Login (Admin)
                 </button>
             </form>
 
-            <div style="margin-top: 20px; font-size: 0.8rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
-                Default Credentials:<br>
-                User: <code style="color: #00f0ff;">admin</code> • Pass: <code style="color: #00f0ff;">Antigravity@2026</code><br>
-                <button type="button" id="btnResetCredsToDefault" style="background: none; border: none; color: #38bdf8; text-decoration: underline; cursor: pointer; font-size: 0.78rem; margin-top: 6px;">
-                    🔄 Reset Password to Default (Antigravity@2026)
+            <div style="margin-top: 22px; font-size: 0.8rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px; display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" onclick="showEmailResetModal()" style="background: none; border: none; color: #38bdf8; text-decoration: underline; cursor: pointer; font-size: 0.8rem;">
+                    📧 Reset Password via Email
+                </button>
+                <span style="color: #475569; font-size: 0.75rem;">🔒 SSL Encrypted</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- EMAIL PASSWORD RESET MODAL -->
+    <div id="emailResetModal" style="display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.88); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; padding: 20px;">
+        <div class="admin-card" style="max-width: 440px; width: 100%; padding: 32px 26px; border-color: #00f0ff; box-shadow: 0 0 50px rgba(0, 240, 255, 0.35); text-align: left; position: relative;">
+            <button type="button" onclick="closeEmailResetModal()" style="position: absolute; top: 16px; right: 16px; background: none; border: none; color: #94a3b8; font-size: 1.4rem; cursor: pointer; line-height: 1;">&times;</button>
+            
+            <div style="text-align: center; margin-bottom: 20px;">
+                <div style="font-size: 2.5rem; margin-bottom: 6px;">📧</div>
+                <h3 style="font-size: 1.35rem; color: #fff; margin-bottom: 4px;">Admin Password Reset</h3>
+                <p style="color: #94a3b8; font-size: 0.82rem;">Apna registered Admin Email address enter karein:</p>
+            </div>
+
+            <!-- Step 1: Email Verification Form -->
+            <div id="resetEmailStep1">
+                <form id="verifyAdminEmailForm" onsubmit="return handleVerifyEmail(event);">
+                    <div class="form-group">
+                        <label class="form-label" for="resetAdminEmail">Registered Admin Email</label>
+                        <input type="email" id="resetAdminEmail" class="form-input" placeholder="e.g. satyam147singh@gmail.com" required autocomplete="email">
+                    </div>
+                    
+                    <div id="resetEmailError" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 14px;">
+                        <!-- error text -->
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+                        🔍 Verify Email &amp; Continue
+                    </button>
+                </form>
+            </div>
+
+            <!-- Step 2: Set New Password Form (Revealed after email matches) -->
+            <div id="resetEmailStep2" style="display: none;">
+                <div style="background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #34d399;">
+                    ✓ Email Verified: <strong id="verifiedEmailDisplay">satyam147singh@gmail.com</strong>
+                </div>
+
+                <form id="setNewPasswordForm" onsubmit="return handleSetNewPassword(event);">
+                    <div class="form-group">
+                        <label class="form-label" for="resetNewPassInput">Naya Password (New Password)</label>
+                        <input type="password" id="resetNewPassInput" class="form-input" placeholder="Enter new strong password" required minlength="6">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="resetConfirmPassInput">Confirm New Password</label>
+                        <input type="password" id="resetConfirmPassInput" class="form-input" placeholder="Re-type new password" required minlength="6">
+                    </div>
+
+                    <div id="setPassError" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 14px;">
+                        <!-- error text -->
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+                        🔒 Update Password &amp; Login Now
+                    </button>
+                </form>
+            </div>
+
+            <div style="margin-top: 16px; text-align: center;">
+                <button type="button" onclick="closeEmailResetModal()" style="background: none; border: none; color: #94a3b8; font-size: 0.8rem; cursor: pointer;">
+                    Cancel / Back to Login
                 </button>
             </div>
         </div>

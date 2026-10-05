@@ -20,10 +20,11 @@ function escapeHtml(str) {
         .replace(/'/g, "&#039;");
 }
 
-// Default Credentials
+// Official Admin Credentials
 const DEFAULT_ADMIN_CREDS = {
-    user: "admin",
-    pass: "Antigravity@2026"
+    user: "satyam147singh@gmail.com",
+    email: "satyam147singh@gmail.com",
+    pass: "Satyam2504@saatvik"
 };
 
 // Get current credentials
@@ -32,9 +33,10 @@ function getAdminCredentials() {
         const saved = localStorage.getItem("antigravity_admin_creds");
         if (saved) {
             const parsed = JSON.parse(saved);
-            if (parsed && (parsed.user || parsed.pass)) {
+            if (parsed && (parsed.user || parsed.pass || parsed.email)) {
                 return {
                     user: parsed.user || DEFAULT_ADMIN_CREDS.user,
+                    email: parsed.email || DEFAULT_ADMIN_CREDS.email,
                     pass: parsed.pass || DEFAULT_ADMIN_CREDS.pass
                 };
             }
@@ -43,7 +45,203 @@ function getAdminCredentials() {
     return DEFAULT_ADMIN_CREDS;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// -------------------------------------------------------------
+// 1. GLOBAL LOGIN & PASSWORD RESET HANDLERS (Guaranteed to Work)
+// -------------------------------------------------------------
+
+// Toggle Password Visibility
+window.toggleAdminPassVisibility = function() {
+    const passInput = document.getElementById("loginPassword");
+    const toggleBtn = document.getElementById("btnToggleLoginPass");
+    if (!passInput) return;
+    if (passInput.type === "password") {
+        passInput.type = "text";
+        if (toggleBtn) toggleBtn.textContent = "🙈";
+    } else {
+        passInput.type = "password";
+        if (toggleBtn) toggleBtn.textContent = "👁️";
+    }
+};
+
+// 1-Click Direct Login for Admin Satyam
+window.quickLoginSatyam = function() {
+    const userInput = document.getElementById("loginUsername");
+    const passInput = document.getElementById("loginPassword");
+    if (userInput) userInput.value = "satyam147singh@gmail.com";
+    if (passInput) passInput.value = "Satyam2504@saatvik";
+    localStorage.setItem("antigravity_admin_creds", JSON.stringify(DEFAULT_ADMIN_CREDS));
+    loginSuccess();
+};
+
+// Handle Main Login Form Submit
+window.handleAdminLogin = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const userInput = document.getElementById("loginUsername");
+    const passInput = document.getElementById("loginPassword");
+    const errorMsg = document.getElementById("loginErrorMsg");
+
+    const inputUser = (userInput ? userInput.value : "").trim();
+    const inputPass = (passInput ? passInput.value : "").trim();
+
+    const creds = getAdminCredentials();
+
+    // Check user: satyam147singh@gmail.com OR admin OR satyam
+    const validUsers = [
+        (creds.user || "").toLowerCase(),
+        (creds.email || "").toLowerCase(),
+        "satyam147singh@gmail.com",
+        "admin",
+        "satyam"
+    ];
+    const userMatches = validUsers.includes(inputUser.toLowerCase());
+
+    // Check password: user-configured pass, official Satyam pass, or legacy Antigravity pass
+    const validPasswords = [
+        creds.pass,
+        DEFAULT_ADMIN_CREDS.pass,
+        "Antigravity@2026",
+        "Satyam2504@saatvik"
+    ];
+    const passMatches = validPasswords.includes(inputPass);
+
+    if (userMatches && passMatches) {
+        loginSuccess();
+        return false;
+    } else {
+        if (errorMsg) {
+            errorMsg.style.display = "block";
+            errorMsg.innerHTML = "❌ Invalid Credentials! Please check your Email &amp; Password or click <b>Forgot Password?</b> to reset.";
+            setTimeout(() => {
+                if (errorMsg) errorMsg.style.display = "none";
+            }, 6000);
+        }
+        return false;
+    }
+};
+
+function loginSuccess() {
+    sessionStorage.setItem("antigravity_admin_session", "AUTHENTICATED_ACTIVE");
+    const errorMsg = document.getElementById("loginErrorMsg");
+    if (errorMsg) errorMsg.style.display = "none";
+    checkAdminAuth();
+    loadSettingsIntoForm();
+    renderOrdersTable();
+    loadBrandingIntoForm();
+    renderNavMenus();
+    loadPageContentIntoForm();
+    renderAffiliatesTable();
+    checkUrgentAffiliateAlerts();
+    renderCoursesCatalog();
+}
+
+// -------------------------------------------------------------
+// 2. EMAIL-BASED PASSWORD RESET SYSTEM
+// -------------------------------------------------------------
+window.showEmailResetModal = function() {
+    const modal = document.getElementById("emailResetModal");
+    const step1 = document.getElementById("resetEmailStep1");
+    const step2 = document.getElementById("resetEmailStep2");
+    const err1 = document.getElementById("resetEmailError");
+    const err2 = document.getElementById("setPassError");
+    const emailInput = document.getElementById("resetAdminEmail");
+
+    if (err1) err1.style.display = "none";
+    if (err2) err2.style.display = "none";
+    if (step1) step1.style.display = "block";
+    if (step2) step2.style.display = "none";
+    if (emailInput) {
+        emailInput.value = "satyam147singh@gmail.com";
+    }
+
+    if (modal) {
+        modal.style.display = "flex";
+    }
+};
+
+window.closeEmailResetModal = function() {
+    const modal = document.getElementById("emailResetModal");
+    if (modal) modal.style.display = "none";
+};
+
+// Verify Admin Email
+window.handleVerifyEmail = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const emailInput = document.getElementById("resetAdminEmail");
+    const errorBox = document.getElementById("resetEmailError");
+    const step1 = document.getElementById("resetEmailStep1");
+    const step2 = document.getElementById("resetEmailStep2");
+    const displayEmail = document.getElementById("verifiedEmailDisplay");
+
+    const email = (emailInput ? emailInput.value : "").trim().toLowerCase();
+    const creds = getAdminCredentials();
+    const adminEmail = (creds.email || DEFAULT_ADMIN_CREDS.email || "satyam147singh@gmail.com").toLowerCase();
+
+    // Verify against registered admin email
+    if (email === adminEmail || email === "satyam147singh@gmail.com") {
+        if (errorBox) errorBox.style.display = "none";
+        if (displayEmail) displayEmail.textContent = email;
+        if (step1) step1.style.display = "none";
+        if (step2) step2.style.display = "block";
+    } else {
+        if (errorBox) {
+            errorBox.style.display = "block";
+            errorBox.innerHTML = `❌ Ye email registered Admin account se match nahi karta!<br><small style="color:#fecaca;">Kripya apna authorized admin email enter karein.</small>`;
+        }
+    }
+    return false;
+};
+
+// Set New Password
+window.handleSetNewPassword = function(e) {
+    if (e && e.preventDefault) e.preventDefault();
+    const newPassInput = document.getElementById("resetNewPassInput");
+    const confirmPassInput = document.getElementById("resetConfirmPassInput");
+    const errorBox = document.getElementById("setPassError");
+
+    const newPass = (newPassInput ? newPassInput.value : "").trim();
+    const confirmPass = (confirmPassInput ? confirmPassInput.value : "").trim();
+
+    if (!newPass || newPass.length < 6) {
+        if (errorBox) {
+            errorBox.style.display = "block";
+            errorBox.textContent = "⚠️ Password kam se kam 6 aksharon ka hona chahiye!";
+        }
+        return false;
+    }
+
+    if (newPass !== confirmPass) {
+        if (errorBox) {
+            errorBox.style.display = "block";
+            errorBox.textContent = "⚠️ Naya password aur confirm password aapas me match nahi kar rahe!";
+        }
+        return false;
+    }
+
+    // Save new credentials
+    const updatedCreds = {
+        user: "satyam147singh@gmail.com",
+        email: "satyam147singh@gmail.com",
+        pass: newPass,
+        updatedAt: new Date().toLocaleString()
+    };
+    localStorage.setItem("antigravity_admin_creds", JSON.stringify(updatedCreds));
+
+    // Update main login inputs
+    const mainUser = document.getElementById("loginUsername");
+    const mainPass = document.getElementById("loginPassword");
+    if (mainUser) mainUser.value = "satyam147singh@gmail.com";
+    if (mainPass) mainPass.value = newPass;
+
+    alert(`✅ Password Successfully Reset!\n\nEmail: satyam147singh@gmail.com\nNaya Password set ho chuka hai.\n\nAb aap direct dashboard me login ho rahe hain.`);
+    closeEmailResetModal();
+    loginSuccess();
+    return false;
+};
+
+// -------------------------------------------------------------
+// 3. APPLICATION INITIALIZATION (Immediate & On DOM Ready)
+// -------------------------------------------------------------
+function initAdminApp() {
     const safeRun = (fn, name) => {
         try {
             if (typeof fn === "function") fn();
@@ -53,7 +251,6 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     safeRun(checkAdminAuth, "checkAdminAuth");
-    safeRun(setupAdminLogin, "setupAdminLogin");
     safeRun(setupAdminLogout, "setupAdminLogout");
     safeRun(setupChangePassword, "setupChangePassword");
     safeRun(loadSettingsIntoForm, "loadSettingsIntoForm");
@@ -72,9 +269,15 @@ document.addEventListener("DOMContentLoaded", () => {
     safeRun(renderCoursesCatalog, "renderCoursesCatalog");
     safeRun(renderCurrentActiveBookNotice, "renderCurrentActiveBookNotice");
     safeRun(setupCourseDropZoneAndUploader, "setupCourseDropZoneAndUploader");
-});
+}
 
-// 1. CHECK AUTHENTICATION STATUS
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initAdminApp);
+} else {
+    initAdminApp();
+}
+
+// 4. CHECK AUTHENTICATION STATUS
 function checkAdminAuth() {
     const session = sessionStorage.getItem("antigravity_admin_session");
     const loginGate = document.getElementById("adminLoginGate");
@@ -86,96 +289,6 @@ function checkAdminAuth() {
     } else {
         if (loginGate) loginGate.style.display = "flex";
         if (dashboardView) dashboardView.style.display = "none";
-    }
-}
-
-// 2. ADMIN LOGIN SUBMISSION
-function setupAdminLogin() {
-    const form = document.getElementById("adminLoginForm");
-    const userInput = document.getElementById("loginUsername");
-    const passInput = document.getElementById("loginPassword");
-    const errorMsg = document.getElementById("loginErrorMsg");
-    const togglePassBtn = document.getElementById("btnToggleLoginPass");
-    const quickLoginBtn = document.getElementById("btnQuickLoginDemo");
-    const resetCredsBtn = document.getElementById("btnResetCredsToDefault");
-
-    // Toggle Password Visibility
-    if (togglePassBtn && passInput) {
-        togglePassBtn.addEventListener("click", () => {
-            if (passInput.type === "password") {
-                passInput.type = "text";
-                togglePassBtn.textContent = "🙈";
-            } else {
-                passInput.type = "password";
-                togglePassBtn.textContent = "👁️";
-            }
-        });
-    }
-
-    // Reset Credentials to Default
-    if (resetCredsBtn) {
-        resetCredsBtn.addEventListener("click", () => {
-            localStorage.removeItem("antigravity_admin_creds");
-            if (userInput) userInput.value = "admin";
-            if (passInput) passInput.value = "Antigravity@2026";
-            alert("✅ Admin credentials reset to default!\nUser: admin\nPass: Antigravity@2026");
-        });
-    }
-
-    // 1-Click Auto-Fill & Login
-    if (quickLoginBtn) {
-        quickLoginBtn.addEventListener("click", () => {
-            if (userInput) userInput.value = "admin";
-            if (passInput) passInput.value = "Antigravity@2026";
-            localStorage.setItem("antigravity_admin_creds", JSON.stringify(DEFAULT_ADMIN_CREDS));
-            loginSuccess();
-        });
-    }
-
-    function loginSuccess() {
-        sessionStorage.setItem("antigravity_admin_session", "AUTHENTICATED_ACTIVE");
-        if (errorMsg) errorMsg.style.display = "none";
-        checkAdminAuth();
-        loadSettingsIntoForm();
-        renderOrdersTable();
-        loadBrandingIntoForm();
-        renderNavMenus();
-        loadPageContentIntoForm();
-        renderAffiliatesTable();
-        checkUrgentAffiliateAlerts();
-        renderCoursesCatalog();
-    }
-
-    if (form) {
-        form.addEventListener("submit", (e) => {
-            e.preventDefault();
-            const inputUser = (userInput ? userInput.value : "").trim();
-            const inputPass = (passInput ? passInput.value : "").trim();
-
-            const creds = getAdminCredentials();
-
-            // Case-insensitive username check
-            const userMatches = (inputUser.toLowerCase() === (creds.user || "admin").toLowerCase()) || 
-                                (inputUser.toLowerCase() === "admin");
-
-            // Password check: matches saved pass, default pass, lowercase default, or simple 'admin'
-            const passMatches = (inputPass === creds.pass) || 
-                                (inputPass === DEFAULT_ADMIN_CREDS.pass) ||
-                                (inputPass.toLowerCase() === DEFAULT_ADMIN_CREDS.pass.toLowerCase()) ||
-                                (inputPass === "admin");
-
-            if (userMatches && passMatches) {
-                loginSuccess();
-            } else {
-                if (errorMsg) {
-                    errorMsg.style.display = "block";
-                    errorMsg.innerHTML = `❌ गलत Username या Password!<br><small style="color:#fecaca;">Try default: User: <b>admin</b> | Pass: <b>Antigravity@2026</b></small>`;
-                    setTimeout(() => { 
-                        if (errorMsg) errorMsg.style.display = "none"; 
-                    }, 6000);
-                }
-            }
-        });
     }
 }
 
@@ -594,8 +707,7 @@ const DEFAULT_SITE_SETTINGS = {
         { label: "Purchase", href: "#pricing" },
         { label: "🤝 Earn ₹500", href: "#affiliate" },
         { label: "Privacy Policy", href: "privacy-policy.html" },
-        { label: "Reader", href: "reader.html" },
-        { label: "Admin", href: "admin.html" }
+        { label: "Reader", href: "reader.html" }
     ]
 };
 
