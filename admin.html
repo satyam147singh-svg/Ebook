@@ -584,33 +584,51 @@
             </div>
 
             <!-- ==========================================
-                 TAB 6: COURSE & E-BOOK MANAGER (DRAG & DROP)
+                 TAB 6: COURSE & E-BOOK MANAGER (MULTI-COURSE CMS + 5 TEMPLATES)
                  ========================================== -->
             <div id="tab-courses" class="admin-tab-pane">
                 <div style="display: flex; flex-direction: column; gap: 24px;">
                     
-                    <!-- ACTIVE E-BOOK NOTICE -->
+                    <!-- ACTIVE STOREFRONT SUMMARY -->
                     <div class="admin-card" style="border-color: #00f0ff; background: rgba(0, 240, 255, 0.03);">
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
                             <div>
-                                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #00f0ff; font-weight: 700;">🟢 Currently Active E-Book on Website & Reader</span>
-                                <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-top: 4px;" id="currentActiveBookTitle">Google Antigravity Master Guide</h3>
-                                <p style="font-size: 0.85rem; color: #94a3b8;" id="currentActiveBookMeta">Price: ₹199 • Total Chapters: 9 • All DRM Protections Active</p>
+                                <span style="font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; color: #00f0ff; font-weight: 700;">🟢 Active Courses Storefront & Multiple Live E-Books</span>
+                                <h3 style="font-size: 1.3rem; font-weight: 800; color: #fff; margin-top: 4px;" id="currentActiveBookTitle">Storefront Active Catalog</h3>
+                                <p style="font-size: 0.85rem; color: #94a3b8;" id="currentActiveBookMeta">Multiple courses can be active simultaneously on the Courses Storefront & Reader.</p>
                             </div>
-                            <a href="reader.html" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">
-                                📖 Open Live Reader
-                            </a>
+                            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                                <a href="courses.html" target="_blank" class="btn btn-primary" style="font-size: 0.85rem; padding: 8px 16px;">
+                                    🛍️ View Courses Page
+                                </a>
+                                <a href="reader.html" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">
+                                    📖 Open Live Reader
+                                </a>
+                            </div>
                         </div>
                     </div>
 
                     <!-- DRAG & DROP NEW EBOOK UPLOADER -->
-                    <!-- DRAG & DROP NEW EBOOK UPLOADER -->
-                    <div class="admin-card">
+                    <div class="admin-card" id="courseFormCard">
+                        <!-- Editing notice banner (hidden by default) -->
+                        <div id="courseEditingNotice" class="editing-course-banner" style="display: none;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <span style="font-size: 1.3rem;">✏️</span>
+                                <div>
+                                    <strong style="color: #fff;">Currently Editing: <span id="editingCourseTitleDisplay">Course</span></strong>
+                                    <div style="font-size: 0.78rem; color: #fde68a;">Changes will update this course, its landing page, and reader content.</div>
+                                </div>
+                            </div>
+                            <button type="button" id="btnCancelEditCourse" class="btn btn-secondary" style="font-size: 0.78rem; padding: 4px 12px; background: rgba(0,0,0,0.4); border-color: #f59e0b; color: #fbbf24;">
+                                ✕ Cancel Edit
+                            </button>
+                        </div>
+
                         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 16px;">
                             <div>
-                                <h2 style="margin-bottom: 2px;">📤 Add & Launch New E-Book / Course</h2>
+                                <h2 style="margin-bottom: 2px;" id="courseFormSectionHeading">📤 Add & Launch New E-Book / Course</h2>
                                 <p style="font-size: 0.85rem; color: #94a3b8;">
-                                    Drag & drop any document (.txt, .md, .docx, .html, .json) or paste content. Automatic chapter parsing makes it live in seconds!
+                                    Upload documents, pick a Landing Page layout template, customize headlines, and launch multiple active courses simultaneously!
                                 </p>
                             </div>
                         </div>
@@ -675,6 +693,21 @@ Yahan chapter 2 ka content aayega..."></textarea>
 
                         <!-- Course Details Form -->
                         <form id="newCourseForm" style="margin-top: 24px;">
+                            <!-- Hidden ID if editing -->
+                            <input type="hidden" id="courseEditId" value="">
+
+                            <!-- Active Switch & Core Meta -->
+                            <div style="background: rgba(16, 185, 129, 0.08); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; padding: 14px 18px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <div>
+                                    <strong style="color: #34d399; font-size: 0.95rem;">🟢 Multiple Active Courses Status</strong>
+                                    <p style="margin: 0; color: #94a3b8; font-size: 0.8rem;">Is course ko turant active karein. Aap ek sath multiple courses active rakh sakte hain!</p>
+                                </div>
+                                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                                    <input type="checkbox" id="courseInputIsActive" checked style="width: 18px; height: 18px; accent-color: #10b981; cursor: pointer;">
+                                    <span style="font-weight: 700; color: #fff; font-size: 0.9rem;">Course is Active (LIVE)</span>
+                                </label>
+                            </div>
+
                             <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
                                 <div class="form-group">
                                     <label class="form-label" for="courseInputTitle">E-Book / Course Title <span class="req">*</span></label>
@@ -691,7 +724,7 @@ Yahan chapter 2 ka content aayega..."></textarea>
                                 <input type="text" id="courseInputSubtitle" class="form-input" placeholder="e.g. The definitive guide to building modern apps with AI" value="Comprehensive Blueprint & Practical Production Code">
                             </div>
 
-                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px;">
                                 <div class="form-group">
                                     <label class="form-label" for="courseInputPrice">Selling Price (₹) <span class="req">*</span></label>
                                     <input type="number" id="courseInputPrice" class="form-input" placeholder="199" value="199" required>
@@ -703,6 +736,152 @@ Yahan chapter 2 ka content aayega..."></textarea>
                                 <div class="form-group">
                                     <label class="form-label" for="courseInputAuthor">Author / Publisher</label>
                                     <input type="text" id="courseInputAuthor" class="form-input" placeholder="e.g. Google Antigravity Team" value="Google Antigravity Team">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label" for="courseInputBadge">Card Badge Tag</label>
+                                    <input type="text" id="courseInputBadge" class="form-input" placeholder="e.g. Bestseller, New, Trending" value="Bestseller">
+                                </div>
+                            </div>
+
+                            <!-- MINI-CMS: 5 LANDING PAGE LAYOUT TEMPLATES -->
+                            <div style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 20px; margin-top: 16px; margin-bottom: 24px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                                    <h3 style="font-size: 1.05rem; color: #00f0ff; margin: 0;">🎨 Landing Page Layout Template (Select 1 of 5)</h3>
+                                    <span style="font-size: 0.75rem; color: #94a3b8;">Har course ke liye alag attractive landing page banta hai!</span>
+                                </div>
+                                <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px;">
+                                    Template select karein. Publish karte hi aapka naya custom landing page automatic ready ho jayega:
+                                </p>
+
+                                <div class="template-picker-grid">
+                                    <!-- Template 1 -->
+                                    <label class="template-card">
+                                        <input type="radio" name="courseTemplate" value="template_tech" checked style="position: absolute; top: 12px; right: 12px; accent-color: #00f0ff;">
+                                        <div class="template-card-header">
+                                            <span class="template-icon">🚀</span>
+                                            <span class="template-badge">Template 1</span>
+                                        </div>
+                                        <div class="template-card-body">
+                                            <h4 class="template-title">Cyberpunk & Tech Dark</h4>
+                                            <p class="template-desc">Glowing neon cyan & emerald, dark sci-fi background, terminal grids, tech badges.</p>
+                                            <div class="template-palette">
+                                                <span class="palette-dot" style="background: #00f0ff;"></span>
+                                                <span class="palette-dot" style="background: #10b981;"></span>
+                                                <span class="palette-dot" style="background: #070913;"></span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Template 2 -->
+                                    <label class="template-card">
+                                        <input type="radio" name="courseTemplate" value="template_luxury" style="position: absolute; top: 12px; right: 12px; accent-color: #00f0ff;">
+                                        <div class="template-card-header">
+                                            <span class="template-icon">💎</span>
+                                            <span class="template-badge">Template 2</span>
+                                        </div>
+                                        <div class="template-card-body">
+                                            <h4 class="template-title">Minimalist Clean Luxury</h4>
+                                            <p class="template-desc">Deep obsidian, royal purple & violet gradients, elegant sans-serif, clean glass cards.</p>
+                                            <div class="template-palette">
+                                                <span class="palette-dot" style="background: #8b5cf6;"></span>
+                                                <span class="palette-dot" style="background: #ec4899;"></span>
+                                                <span class="palette-dot" style="background: #0f172a;"></span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Template 3 -->
+                                    <label class="template-card">
+                                        <input type="radio" name="courseTemplate" value="template_sales" style="position: absolute; top: 12px; right: 12px; accent-color: #00f0ff;">
+                                        <div class="template-card-header">
+                                            <span class="template-icon">🎯</span>
+                                            <span class="template-badge">Template 3</span>
+                                        </div>
+                                        <div class="template-card-body">
+                                            <h4 class="template-title">Video Masterclass Sales</h4>
+                                            <p class="template-desc">High urgency countdowns, bold CTA headers, curriculum spotlights, proof tickers.</p>
+                                            <div class="template-palette">
+                                                <span class="palette-dot" style="background: #ef4444;"></span>
+                                                <span class="palette-dot" style="background: #f59e0b;"></span>
+                                                <span class="palette-dot" style="background: #18181b;"></span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Template 4 -->
+                                    <label class="template-card">
+                                        <input type="radio" name="courseTemplate" value="template_saas" style="position: absolute; top: 12px; right: 12px; accent-color: #00f0ff;">
+                                        <div class="template-card-header">
+                                            <span class="template-icon">⚡</span>
+                                            <span class="template-badge">Template 4</span>
+                                        </div>
+                                        <div class="template-card-body">
+                                            <h4 class="template-title">Modern SaaS & Dev Product</h4>
+                                            <p class="template-desc">Code snippet previews, architecture diagram cards, tech stack pills & feature tabs.</p>
+                                            <div class="template-palette">
+                                                <span class="palette-dot" style="background: #3b82f6;"></span>
+                                                <span class="palette-dot" style="background: #06b6d4;"></span>
+                                                <span class="palette-dot" style="background: #0b132b;"></span>
+                                            </div>
+                                        </div>
+                                    </label>
+
+                                    <!-- Template 5 -->
+                                    <label class="template-card">
+                                        <input type="radio" name="courseTemplate" value="template_author" style="position: absolute; top: 12px; right: 12px; accent-color: #00f0ff;">
+                                        <div class="template-card-header">
+                                            <span class="template-icon">📚</span>
+                                            <span class="template-badge">Template 5</span>
+                                        </div>
+                                        <div class="template-card-body">
+                                            <h4 class="template-title">Author & Reader Showcase</h4>
+                                            <p class="template-desc">3D book cover hero, author bio, sample chapter teaser accordions, reader reviews.</p>
+                                            <div class="template-palette">
+                                                <span class="palette-dot" style="background: #10b981;"></span>
+                                                <span class="palette-dot" style="background: #6366f1;"></span>
+                                                <span class="palette-dot" style="background: #090d16;"></span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+
+                                <!-- Landing Page Content Customization -->
+                                <div style="border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 16px; margin-top: 16px;">
+                                    <h4 style="font-size: 0.95rem; color: #fff; margin-bottom: 12px;">✍️ Landing Page Content Customization (Mini-CMS)</h4>
+                                    
+                                    <div class="form-group" style="margin-bottom: 12px;">
+                                        <label class="form-label" for="courseInputHeadline">Hero Main Headline</label>
+                                        <input type="text" id="courseInputHeadline" class="form-input" placeholder="e.g. Master Autonomous AI Development & Build Any Software in Minutes">
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom: 12px;">
+                                        <label class="form-label" for="courseInputSubheadline">Hero Subheadline / Pitch</label>
+                                        <textarea id="courseInputSubheadline" class="form-input" style="height: 65px; resize: vertical;" placeholder="Comprehensive step-by-step master material, zero placeholders, complete code blueprints with DRM protected instant access."></textarea>
+                                    </div>
+
+                                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;">
+                                        <div>
+                                            <label class="form-label">Key Point 1</label>
+                                            <input type="text" id="courseInputKeyPoint1" class="form-input" placeholder="Step-by-step master architecture and blueprints" value="Autonomous Planning & Architecture Blueprint">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Key Point 2</label>
+                                            <input type="text" id="courseInputKeyPoint2" class="form-input" placeholder="Production ready code with zero placeholders" value="Multi-File Codebase Generation with Terminal Auto-Repair">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Key Point 3</label>
+                                            <input type="text" id="courseInputKeyPoint3" class="form-input" placeholder="Browser testing & self-healing workflows" value="Automated Testing & End-to-End Validation">
+                                        </div>
+                                        <div>
+                                            <label class="form-label">Key Point 4</label>
+                                            <input type="text" id="courseInputKeyPoint4" class="form-input" placeholder="Freelancing, SaaS monetization & client delivery" value="Client Delivery & Monthly Revenue Monetization Strategy">
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group" style="margin-bottom: 0;">
+                                        <label class="form-label" for="courseInputCtaText">Custom CTA Button Text</label>
+                                        <input type="text" id="courseInputCtaText" class="form-input" placeholder="e.g. Unlock Master Course Now • ₹199" value="Unlock Complete Guide & Instant Access">
+                                    </div>
                                 </div>
                             </div>
 
@@ -725,11 +904,11 @@ Yahan chapter 2 ka content aayega..."></textarea>
                             </div>
 
                             <div style="display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap;">
-                                <button type="submit" id="btnPublishAndActivate" class="btn btn-primary" style="flex: 2; padding: 13px; font-size: 1rem;">
-                                    🚀 Publish & Set as Live E-Book on Site
+                                <button type="submit" id="btnPublishAndActivate" class="btn btn-primary" style="flex: 2; padding: 14px; font-size: 1rem;">
+                                    💾 Save & Publish Course / Landing Page
                                 </button>
-                                <button type="button" id="btnSaveToCatalog" class="btn btn-secondary" style="flex: 1; padding: 13px;">
-                                    💾 Save to Catalog (Draft)
+                                <button type="button" id="btnSaveToCatalog" class="btn btn-secondary" style="flex: 1; padding: 14px;">
+                                    📁 Save as Inactive Draft
                                 </button>
                             </div>
                         </form>
@@ -740,7 +919,12 @@ Yahan chapter 2 ka content aayega..."></textarea>
                         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
                             <div>
                                 <h2 style="margin-bottom: 2px;">📚 All E-Books & Courses Catalog</h2>
-                                <span style="font-size: 0.82rem; color: #94a3b8;">Aap kisi bhi e-book ka price badal sakte hain ya use 1-click me live kar sakte hain</span>
+                                <span style="font-size: 0.82rem; color: #94a3b8;">Multiple courses active rakh sakte hain. Kisi bhi course ko Edit, Delete, Toggle Active karein ya Landing Page preview karein!</span>
+                            </div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <span id="catalogCountSummaryBadge" style="background: rgba(0, 240, 255, 0.12); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.3); padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">
+                                    Total: 0 | Active: 0
+                                </span>
                             </div>
                         </div>
 
@@ -752,7 +936,8 @@ Yahan chapter 2 ka content aayega..."></textarea>
                                         <th>Category</th>
                                         <th>Chapters</th>
                                         <th>Price (₹)</th>
-                                        <th>Status</th>
+                                        <th>Template</th>
+                                        <th>Status (Multiple Active)</th>
                                         <th>Actions</th>
                                     </tr>
                                 </thead>
@@ -762,6 +947,9 @@ Yahan chapter 2 ka content aayega..."></textarea>
                             </table>
                         </div>
                     </div>
+
+                </div>
+            </div>
 
                 </div>
             </div>

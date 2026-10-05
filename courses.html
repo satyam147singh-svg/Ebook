@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#070913">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>All Courses & E-Books Storefront - Google Antigravity & AI Master Guides</title>
+    <meta name="description" content="Explore and purchase premium AI engineering courses, autonomous software guides, and freelancing blueprints with instant encrypted DRM reader access.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Stylesheets -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        /* Specific Courses Page Styling */
+        .courses-hero {
+            padding: 70px 0 36px;
+            text-align: center;
+            position: relative;
+        }
+
+        .courses-filter-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            margin: 32px 0 24px;
+            flex-wrap: wrap;
+        }
+
+        .search-box-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .search-box-wrap input {
+            width: 100%;
+            padding: 14px 18px 14px 44px;
+            background: rgba(18, 24, 52, 0.7);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            color: #fff;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.25s ease;
+        }
+
+        .search-box-wrap input:focus {
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 16px rgba(0, 240, 255, 0.25);
+            background: rgba(18, 24, 52, 0.95);
+        }
+
+        .search-icon-pos {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #64748b;
+            font-size: 1.1rem;
+            pointer-events: none;
+        }
+
+        .category-pills-wrap {
+            display: flex;
+            gap: 8px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            max-width: 100%;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .cat-pill {
+            padding: 9px 18px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #94a3b8;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s ease;
+        }
+
+        .cat-pill:hover,
+        .cat-pill.active {
+            background: rgba(0, 240, 255, 0.15);
+            border-color: #00f0ff;
+            color: #00f0ff;
+            box-shadow: 0 0 14px rgba(0, 240, 255, 0.2);
+        }
+
+        /* Courses Grid */
+        .courses-catalog-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 26px;
+            margin-bottom: 80px;
+        }
+
+        .course-card-item {
+            background: rgba(18, 24, 52, 0.7);
+            border: 1px solid rgba(99, 102, 241, 0.22);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+        }
+
+        .course-card-item:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0, 240, 255, 0.5);
+            box-shadow: 0 18px 40px rgba(0, 240, 255, 0.18);
+        }
+
+        .course-card-banner {
+            height: 160px;
+            position: relative;
+            background: linear-gradient(135deg, rgba(7, 9, 23, 0.9), rgba(15, 23, 52, 0.85));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .course-banner-glow {
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(0, 240, 255, 0.35) 0%, transparent 70%);
+            top: -30px;
+            right: -30px;
+            pointer-events: none;
+        }
+
+        .course-card-badge {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: linear-gradient(135deg, #00f0ff, #8b5cf6);
+            color: #070913;
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 10px rgba(0, 240, 255, 0.3);
+        }
+
+        .course-template-pill {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.4);
+            font-size: 0.72rem;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+
+        .course-banner-visual {
+            text-align: center;
+        }
+
+        .course-banner-icon {
+            font-size: 3rem;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 0 16px rgba(0, 240, 255, 0.4));
+        }
+
+        .course-card-body {
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+
+        .course-cat-tag {
+            font-size: 0.78rem;
+            color: #00f0ff;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.8px;
+            margin-bottom: 8px;
+        }
+
+        .course-card-title {
+            font-size: 1.22rem;
+            font-weight: 800;
+            color: #f8fafc;
+            line-height: 1.35;
+            margin-bottom: 8px;
+            font-family: var(--font-heading);
+        }
+
+        .course-card-subtitle {
+            font-size: 0.85rem;
+            color: #94a3b8;
+            line-height: 1.5;
+            margin-bottom: 16px;
+            flex-grow: 1;
+        }
+
+        .course-meta-strip {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 16px;
+            font-size: 0.8rem;
+            color: #cbd5e1;
+        }
+
+        .course-highlights-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 18px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .course-highlights-list li {
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+        }
+
+        .course-highlights-list li span.bullet-check {
+            color: #10b981;
+            font-weight: 700;
+        }
+
+        .course-pricing-row {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            padding-top: 14px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-bottom: 16px;
+        }
+
+        .course-price-now {
+            font-size: 1.6rem;
+            font-weight: 800;
+            color: #10b981;
+            font-family: var(--font-heading);
+        }
+
+        .course-price-old {
+            font-size: 0.95rem;
+            color: #64748b;
+            text-decoration: line-through;
+            margin-left: 6px;
+        }
+
+        .course-discount-pill {
+            background: rgba(239, 68, 68, 0.15);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 4px;
+        }
+
+        .course-card-actions {
+            display: grid;
+            grid-template-columns: 1.4fr 1fr;
+            gap: 10px;
+        }
+
+        .btn-buy-course-direct {
+            padding: 12px 14px;
+            font-size: 0.92rem;
+            font-weight: 700;
+            border-radius: var(--radius-sm);
+            background: linear-gradient(135deg, #00f0ff, #8b5cf6);
+            border: none;
+            color: #070913;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 15px rgba(0, 240, 255, 0.3);
+        }
+
+        .btn-buy-course-direct:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 240, 255, 0.45);
+        }
+
+        .btn-view-course-landing {
+            padding: 12px 14px;
+            font-size: 0.88rem;
+            font-weight: 600;
+            border-radius: var(--radius-sm);
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #fff;
+            cursor: pointer;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-view-course-landing:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #00f0ff;
+            color: #00f0ff;
+        }
+
+        /* Mobile full width perfection */
+        @media (max-width: 768px) {
+            .courses-catalog-grid {
+                grid-template-columns: 1fr !important;
+                gap: 20px;
+            }
+            .course-card-item {
+                width: 100% !important;
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+            }
+            .courses-filter-bar {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            .search-box-wrap {
+                width: 100%;
+            }
+            .course-card-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <header class="navbar" id="main-navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo" id="site-logo">
+                <div class="logo-icon">&#9889;</div>
+                <span>Antigravity<span style="color: var(--accent-cyan);">Guide</span></span>
+            </a>
+            <ul class="nav-links" id="main-nav-links">
+                <li><a href="index.html">🏠 Home</a></li>
+                <li><a href="courses.html" class="active" style="color: #00f0ff; font-weight: 700;">🛍️ All Courses</a></li>
+                <li><a href="reader.html" target="_blank">📖 DRM Reader</a></li>
+                <li><a href="index.html#pricing">Pricing</a></li>
+                <li><a href="index.html#faq">FAQ</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle Menu">&#9776;</button>
+                <a href="admin.html" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">
+                    ⚙️ Admin Portal
+                </a>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <ul>
+                <li><a href="index.html">🏠 Home (Main Landing Page)</a></li>
+                <li><a href="courses.html" style="color: #00f0ff; font-weight: 700;">🛍️ All Courses & E-Books</a></li>
+                <li><a href="reader.html" target="_blank">📖 DRM Reader Access</a></li>
+                <li><a href="index.html#pricing">Pricing & Checkout</a></li>
+                <li><a href="admin.html">⚙️ Admin Login</a></li>
+                <li><a href="privacy-policy.html">Privacy Policy</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="courses-hero">
+        <div class="container">
+            <div class="badge-pill" style="margin: 0 auto 16px;">
+                <span class="badge-dot"></span>
+                <span>🚀 Autonomous AI Engineering & Software Storefront</span>
+            </div>
+            <h1 style="font-size: clamp(2rem, 4vw, 3rem); font-family: var(--font-heading); font-weight: 800; line-height: 1.25; margin-bottom: 12px;">
+                All Premium <span class="text-gradient">Courses & E-Books</span>
+            </h1>
+            <p style="color: #94a3b8; font-size: 1.05rem; max-width: 680px; margin: 0 auto;">
+                Select any master blueprint. Each purchase includes instant encrypted DRM reader access, single-device anti-sharing lock, lifetime updates & verifiable certificates.
+            </p>
+
+            <!-- Search & Category Filters -->
+            <div class="courses-filter-bar">
+                <div class="search-box-wrap">
+                    <span class="search-icon-pos">🔍</span>
+                    <input type="text" id="courseSearchInput" placeholder="Search any course, topic, or keyword...">
+                </div>
+
+                <div class="category-pills-wrap" id="categoryPillsWrap">
+                    <button type="button" class="cat-pill active" data-category="ALL">🌟 All Courses</button>
+                    <button type="button" class="cat-pill" data-category="AI & Autonomous Software">🤖 AI & Coding</button>
+                    <button type="button" class="cat-pill" data-category="Full-Stack Web Dev">💻 Web Development</button>
+                    <button type="button" class="cat-pill" data-category="Freelance & Business">💼 Freelance & Agency</button>
+                    <button type="button" class="cat-pill" data-category="AI & Automation">⚡ Prompt Systems</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Courses Grid -->
+    <main class="container">
+        <div class="courses-catalog-grid" id="coursesGridContainer">
+            <!-- Dynamically populated via JS -->
+        </div>
+
+        <!-- Empty State (Hidden) -->
+        <div id="coursesEmptyState" style="display: none; text-align: center; padding: 60px 20px; background: rgba(18,24,52,0.5); border: 1px dashed rgba(255,255,255,0.1); border-radius: 16px; margin-bottom: 60px;">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🔍</div>
+            <h3 style="color: #fff; margin-bottom: 6px;">No courses match your search</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem;">Try searching for a different keyword or reset filters.</p>
+            <button type="button" id="btnResetFilters" class="btn btn-secondary" style="margin-top: 12px; font-size: 0.85rem;">🔄 Reset Search & Filters</button>
+        </div>
+    </main>
+
+    <!-- UNIFIED DIRECT CHECKOUT MODAL (For 1-Click Purchase of Any Course) -->
+    <div class="modal-overlay" id="courseCheckoutModal">
+        <div class="modal-content glass-panel" style="max-width: 580px; padding: 24px;">
+            <button class="modal-close-btn" id="closeCheckoutModal" aria-label="Close Modal">&times;</button>
+            
+            <div id="checkoutFormStep">
+                <div style="text-align: center; margin-bottom: 18px;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; font-size: 0.75rem; color: #00f0ff; margin-bottom: 8px; font-weight: 700;">
+                        <span>🔒 256-BIT ENCRYPTED CHECKOUT</span>
+                    </div>
+                    <h3 class="modal-title" style="margin-bottom: 4px;">Instant Course Purchase</h3>
+                    <p class="modal-subtitle">Apni delivery details bharein aur 100% secure payment complete karein:</p>
+                </div>
+
+                <!-- Returning Buyer Auto-Fill Banner -->
+                <div id="buyerReturningNoticeCourses" style="display: none; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #34d399;">
+                    <!-- Auto-filled by JS -->
+                </div>
+
+                <form id="coursePurchaseForm">
+                    <input type="hidden" id="modalTargetCourseId" value="">
+                    <input type="hidden" id="modalTargetCourseTitle" value="">
+                    <input type="hidden" id="modalTargetCoursePrice" value="199">
+
+                    <div class="form-group">
+                        <label class="form-label" for="buyerNameInput">Aapka Pura Naam (Full Name) <span class="req">*</span></label>
+                        <input type="text" id="buyerNameInput" class="form-input" placeholder="e.g. Rahul Sharma" required autocomplete="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="buyerEmailInput">
+                            <span>📧 Email Address (E-Book Access Link Yahan Jayega)</span> <span class="req">*</span>
+                        </label>
+                        <input type="email" id="buyerEmailInput" class="form-input" placeholder="e.g. rahul.developer@gmail.com" required autocomplete="email">
+                        <small style="color: #64748b; font-size: 0.75rem; margin-top: 4px; display: block;">Payment hote hi stylish invoice aur DRM reader token isi email par aayega.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="buyerPhoneInput">WhatsApp Mobile Number <span class="req">*</span></label>
+                        <input type="tel" id="buyerPhoneInput" class="form-input" placeholder="e.g. 9876543210" required autocomplete="tel">
+                    </div>
+
+                    <!-- Selected Course Summary Box -->
+                    <div class="order-summary-box" style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div>
+                                <span style="font-size: 0.88rem; font-weight: 700; color: #fff; display: block;" id="modalSummaryCourseTitle">Google Antigravity Master Guide</span>
+                                <span style="font-size: 0.75rem; color: #94a3b8;" id="modalSummaryCourseMeta">Encrypted Reader Pass • Lifetime Updates</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 0.8rem; color: #64748b; text-decoration: line-through;" id="modalSummaryStrikePrice">₹1,499</span>
+                                <strong style="font-size: 1.25rem; color: #00f0ff; display: block;" id="modalSummarySellingPrice">₹199</strong>
+                            </div>
+                        </div>
+
+                        <!-- Cashfree Payments Strip -->
+                        <div class="cashfree-strip">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <span style="color: #10b981;">●</span> Powered by <strong>Cashfree Payments & UPI QR</strong>
+                                </span>
+                                <span style="font-size: 0.7rem; color: #a7f3d0; background: rgba(16, 185, 129, 0.15); padding: 2px 6px; border-radius: 4px;">Instant Activation</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Mandatory Consent -->
+                    <div class="consent-box" style="margin: 14px 0;">
+                        <input type="checkbox" id="buyerConsentCheckboxCourses" class="consent-checkbox" required checked>
+                        <label for="buyerConsentCheckboxCourses" class="consent-text" style="font-size: 0.78rem;">
+                            <strong>Mandatory Declaration &amp; Consent:</strong> I certify that I am purchasing this digital educational content of my own free will. Instant DRM reader token dispatched immediately.
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnSubmitCoursePurchase" style="width: 100%; padding: 15px 18px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);">
+                        <span>💳</span>
+                        <span>Proceed to Pay <strong id="btnPayAmountText">₹199</strong> (Cashfree / UPI)</span>
+                    </button>
+                    
+                    <p style="text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 10px;">
+                        🔒 All UPI Apps (GPay, PhonePe, Paytm), Cards & NetBanking supported.
+                    </p>
+                </form>
+            </div>
+
+            <!-- SUCCESS SECTION -->
+            <div id="checkoutSuccessStep" style="display: none; text-align: center; padding: 10px 0;">
+                <div style="font-size: 3rem; margin-bottom: 8px;">🎉</div>
+                <div style="display: inline-block; padding: 4px 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 20px; font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 10px;">
+                    ✓ Payment Verified & Access Pass Generated
+                </div>
+                <h3 style="font-size: 1.45rem; color: #10b981; margin-bottom: 6px;">Course Unlocked Successfully!</h3>
+                <p style="color: #cbd5e1; font-size: 0.88rem; margin-bottom: 18px;">
+                    Aapka personal DRM Access Pass ready ho gaya hai:
+                </p>
+
+                <div style="background: rgba(0, 240, 255, 0.08); border: 1px dashed #00f0ff; border-radius: 10px; padding: 14px; margin-bottom: 20px;">
+                    <span style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Your DRM Access Token:</span>
+                    <code id="successTokenDisplay" style="font-size: 1.15rem; color: #00f0ff; font-weight: 800; letter-spacing: 1px;">AGY-EBK-ACCESS-LIVE</code>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="reader.html" id="btnLaunchCourseReader" class="btn btn-primary" style="padding: 15px; font-size: 1.05rem;">
+                        📖 Open Course in DRM Reader Now
+                    </a>
+                    <button type="button" id="btnDoneCloseModal" class="btn btn-secondary" style="padding: 12px;">
+                        Close Window
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/courses-catalog.js"></script>
+</body>
+</html>

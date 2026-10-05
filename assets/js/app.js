@@ -141,6 +141,7 @@ function setupModals() {
             if (formSection) formSection.style.display = "block";
             if (successSection) successSection.style.display = "none";
             updateDynamicPrices();
+            populateBuyerProfile();
             modal.classList.add("active");
             document.body.style.overflow = "hidden";
         });
@@ -159,6 +160,43 @@ function setupModals() {
             document.body.style.overflow = "";
         }
     });
+}
+
+// Returning User Profile Management
+function getSavedBuyerProfile() {
+    try {
+        const saved = localStorage.getItem("antigravity_buyer_profile");
+        if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return null;
+}
+
+function saveBuyerProfile(name, email, phone) {
+    try {
+        const profile = { name, email, phone, lastUpdated: new Date().toISOString() };
+        localStorage.setItem("antigravity_buyer_profile", JSON.stringify(profile));
+    } catch (e) {}
+}
+
+function populateBuyerProfile() {
+    const profile = getSavedBuyerProfile();
+    if (!profile) return;
+
+    const nameEl = document.getElementById("buyerName");
+    const emailEl = document.getElementById("buyerEmail");
+    const phoneEl = document.getElementById("buyerPhone");
+    const consentCheckbox = document.getElementById("buyerConsentCheckbox");
+    const noticeEl = document.getElementById("buyerReturningNotice");
+
+    if (nameEl && !nameEl.value && profile.name) nameEl.value = profile.name;
+    if (emailEl && !emailEl.value && profile.email) emailEl.value = profile.email;
+    if (phoneEl && !phoneEl.value && profile.phone) phoneEl.value = profile.phone;
+    if (consentCheckbox) consentCheckbox.checked = true;
+
+    if (noticeEl && profile.name) {
+        noticeEl.style.display = "flex";
+        noticeEl.innerHTML = `<span>👋 <strong>Welcome back, ${escapeHtml(profile.name)}!</strong> Details auto-filled from your previous order. Direct payment is ready.</span>`;
+    }
 }
 
 // Setup Form Submission & Cashfree Checkout
@@ -196,6 +234,9 @@ function setupPaymentForm() {
             return;
         }
 
+        // Save Buyer Profile for seamless return purchases
+        saveBuyerProfile(name, email, phone);
+
         // MANDATORY LEGAL CONSENT CHECK
         if (!consentCheckbox.checked) {
             alert("⚠️ Please accept the Mandatory Privacy Policy & Consent Checkbox to confirm you are purchasing this digital content of your own free will.");
@@ -222,6 +263,7 @@ function setupPaymentForm() {
         });
     });
 }
+
 
 // Interactive Cashfree Checkout Experience
 function triggerCashfreePaymentFlow({ name, email, phone, amount, cfConfig }) {

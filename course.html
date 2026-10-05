@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <meta name="theme-color" content="#070913">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title id="pageTitle">Course Landing Page - Antigravity Academy</title>
+    <meta name="description" id="pageMetaDesc" content="Master this comprehensive guide with instant DRM encrypted reader access.">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Outfit:wght@600;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Master Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+    
+    <!-- Dynamic Mini-CMS Template Overrides -->
+    <style id="dynamicTemplateStyles">
+        /* Base Template Defaults */
+        .template-hero-section {
+            padding: 80px 0 50px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-container {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .template-grid-2col {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 40px;
+            align-items: center;
+        }
+
+        .curriculum-accordion-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        .curriculum-accordion-item:hover {
+            border-color: rgba(0, 240, 255, 0.4);
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .curriculum-header-row {
+            padding: 16px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .curriculum-body-content {
+            padding: 0 20px 16px;
+            color: #94a3b8;
+            font-size: 0.88rem;
+            line-height: 1.6;
+            display: none;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            padding-top: 12px;
+        }
+
+        .curriculum-accordion-item.open .curriculum-body-content {
+            display: block;
+        }
+
+        /* 100% Mobile Width Optimization */
+        @media (max-width: 768px) {
+            .template-grid-2col {
+                grid-template-columns: 1fr !important;
+                gap: 30px;
+                text-align: center;
+            }
+            .curriculum-accordion-item {
+                width: 100% !important;
+            }
+            .hero-actions-dynamic {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body id="dynamicPageBody" class="template-tech-theme">
+
+    <!-- Sticky Navigation -->
+    <header class="navbar" id="main-navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="logo" id="site-logo">
+                <div class="logo-icon">&#9889;</div>
+                <span>Antigravity<span style="color: var(--accent-cyan);">Guide</span></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html">🏠 Home</a></li>
+                <li><a href="courses.html">🛍️ All Courses</a></li>
+                <li><a href="#curriculum">📚 Curriculum</a></li>
+                <li><a href="#pricing">💳 Pricing</a></li>
+                <li><a href="reader.html" target="_blank">📖 Reader</a></li>
+            </ul>
+            <div class="nav-actions">
+                <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle Menu">&#9776;</button>
+                <button type="button" class="btn btn-primary btn-trigger-course-buy" id="navBuyCtaBtn">
+                    Unlock Course • <span class="dyn-price-tag">₹199</span>
+                </button>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div class="mobile-menu" id="mobile-menu">
+            <ul>
+                <li><a href="index.html">🏠 Home</a></li>
+                <li><a href="courses.html">🛍️ All Courses & E-Books</a></li>
+                <li><a href="#curriculum">📚 Curriculum</a></li>
+                <li><a href="#pricing">💳 Pricing & Enroll</a></li>
+                <li><a href="reader.html" target="_blank">📖 DRM Reader</a></li>
+                <li><a href="admin.html">⚙️ Admin</a></li>
+            </ul>
+        </div>
+    </header>
+
+    <!-- DYNAMIC CMS CONTENT INJECTION CONTAINER -->
+    <div id="dynamicLandingContent">
+        <!-- Rendered dynamically by assets/js/course-page.js according to selected template (1 of 5) -->
+    </div>
+
+    <!-- DIRECT CHECKOUT MODAL -->
+    <div class="modal-overlay" id="coursePageCheckoutModal">
+        <div class="modal-content glass-panel" style="max-width: 560px; padding: 24px;">
+            <button class="modal-close-btn" id="closeCourseModal" aria-label="Close Modal">&times;</button>
+            
+            <div id="courseModalFormStep">
+                <div style="text-align: center; margin-bottom: 18px;">
+                    <div style="display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; background: rgba(0, 240, 255, 0.1); border: 1px solid rgba(0, 240, 255, 0.3); border-radius: 20px; font-size: 0.75rem; color: #00f0ff; margin-bottom: 8px; font-weight: 700;">
+                        <span>🔒 256-BIT ENCRYPTED CHECKOUT</span>
+                    </div>
+                    <h3 class="modal-title" style="margin-bottom: 4px;">Instant Course Access</h3>
+                    <p class="modal-subtitle">Apni delivery details bharein aur secure payment complete karein:</p>
+                </div>
+
+                <!-- Returning Buyer Auto-Fill Notice -->
+                <div id="returningBuyerNoticeCoursePage" style="display: none; align-items: center; gap: 8px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.35); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 0.82rem; color: #34d399;">
+                    <!-- Auto-filled by JS -->
+                </div>
+
+                <form id="coursePagePaymentForm">
+                    <div class="form-group">
+                        <label class="form-label" for="cpBuyerName">Aapka Pura Naam (Full Name) <span class="req">*</span></label>
+                        <input type="text" id="cpBuyerName" class="form-input" placeholder="e.g. Rahul Sharma" required autocomplete="name">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="cpBuyerEmail">
+                            <span>📧 Email Address (Access Token Yahan Jayega)</span> <span class="req">*</span>
+                        </label>
+                        <input type="email" id="cpBuyerEmail" class="form-input" placeholder="e.g. rahul.developer@gmail.com" required autocomplete="email">
+                        <small style="color: #64748b; font-size: 0.75rem; margin-top: 4px; display: block;">Payment hote hi stylish invoice aur reader token isi email par aayega.</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label" for="cpBuyerPhone">WhatsApp Mobile Number <span class="req">*</span></label>
+                        <input type="tel" id="cpBuyerPhone" class="form-input" placeholder="e.g. 9876543210" required autocomplete="tel">
+                    </div>
+
+                    <!-- Order Summary Box -->
+                    <div class="order-summary-box" style="margin-bottom: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                            <div>
+                                <span style="font-size: 0.88rem; font-weight: 700; color: #fff; display: block;" id="cpModalCourseTitle">Course Title</span>
+                                <span style="font-size: 0.75rem; color: #94a3b8;">Encrypted Reader Pass • Instant Single-Device Activation</span>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="font-size: 0.8rem; color: #64748b; text-decoration: line-through;" id="cpModalStrikePrice">₹1,499</span>
+                                <strong style="font-size: 1.25rem; color: #00f0ff; display: block;" id="cpModalPrice">₹199</strong>
+                            </div>
+                        </div>
+
+                        <!-- Cashfree Payments Strip -->
+                        <div class="cashfree-strip">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="font-size: 0.75rem; color: #cbd5e1; font-weight: 600; display: flex; align-items: center; gap: 6px;">
+                                    <span style="color: #10b981;">●</span> Powered by <strong>Cashfree & UPI Gateway</strong>
+                                </span>
+                                <span style="font-size: 0.7rem; color: #a7f3d0; background: rgba(16, 185, 129, 0.15); padding: 2px 6px; border-radius: 4px;">Zero Convenience Fee</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Consent Box -->
+                    <div class="consent-box" style="margin: 14px 0;">
+                        <input type="checkbox" id="cpBuyerConsent" class="consent-checkbox" required checked>
+                        <label for="cpBuyerConsent" class="consent-text" style="font-size: 0.78rem;">
+                            <strong>Declaration:</strong> I certify that I am purchasing this digital material of my own free will. Access credentials dispatched instantly.
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" id="btnCpProceedPayment" style="width: 100%; padding: 15px 18px; font-size: 1.05rem; display: flex; align-items: center; justify-content: center; gap: 10px; box-shadow: 0 0 25px rgba(0, 240, 255, 0.35);">
+                        <span>💳</span>
+                        <span>Proceed to Pay <strong id="cpBtnPayAmount">₹199</strong></span>
+                    </button>
+                    
+                    <p style="text-align: center; font-size: 0.75rem; color: #64748b; margin-top: 10px;">
+                        🔒 All UPI Apps, Debit/Credit Cards & 50+ Banks supported.
+                    </p>
+                </form>
+            </div>
+
+            <!-- SUCCESS SECTION -->
+            <div id="courseModalSuccessStep" style="display: none; text-align: center; padding: 10px 0;">
+                <div style="font-size: 3rem; margin-bottom: 8px;">🎉</div>
+                <div style="display: inline-block; padding: 4px 14px; background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 20px; font-size: 0.8rem; color: #34d399; font-weight: 700; margin-bottom: 10px;">
+                    ✓ Payment Verified & Access Granted
+                </div>
+                <h3 style="font-size: 1.45rem; color: #10b981; margin-bottom: 6px;">Course Unlocked!</h3>
+                <p style="color: #cbd5e1; font-size: 0.88rem; margin-bottom: 18px;">
+                    Aapka personal DRM Access Pass ready ho gaya hai:
+                </p>
+
+                <div style="background: rgba(0, 240, 255, 0.08); border: 1px dashed #00f0ff; border-radius: 10px; padding: 14px; margin-bottom: 20px;">
+                    <span style="font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 4px;">Your DRM Access Token:</span>
+                    <code id="cpSuccessTokenDisplay" style="font-size: 1.15rem; color: #00f0ff; font-weight: 800; letter-spacing: 1px;">AGY-EBK-ACCESS-LIVE</code>
+                </div>
+
+                <div style="display: flex; flex-direction: column; gap: 10px;">
+                    <a href="reader.html" id="cpBtnLaunchReader" class="btn btn-primary" style="padding: 15px; font-size: 1.05rem;">
+                        📖 Open E-Book in DRM Reader Now
+                    </a>
+                    <button type="button" id="cpBtnCloseDone" class="btn btn-secondary" style="padding: 12px;">
+                        Close Window
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/course-page.js"></script>
+</body>
+</html>

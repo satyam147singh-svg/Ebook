@@ -577,9 +577,24 @@ class SecureReaderEngine {
         }
     }
 
-    // 5. CHAPTER RENDERING & NAVIGATION (Supports Dynamic Active E-Book & Core Antigravity Book)
+    // 5. CHAPTER RENDERING & NAVIGATION (Supports Dynamic Multi-Course & Core Antigravity Book)
     getEbookData() {
         try {
+            const urlParams = new URLSearchParams(window.location.search);
+            const courseId = urlParams.get("courseId");
+            if (courseId) {
+                const catalog = JSON.parse(localStorage.getItem("antigravity_courses_catalog") || "[]");
+                const matched = catalog.find(c => c.id === courseId);
+                if (matched) {
+                    if (matched.ebookData && Array.isArray(matched.ebookData.chapters) && matched.ebookData.chapters.length > 0) {
+                        return matched.ebookData;
+                    }
+                    if (matched.isDefault && typeof EBOOK_DATA !== "undefined") {
+                        return EBOOK_DATA;
+                    }
+                }
+            }
+
             const customActive = localStorage.getItem("antigravity_active_ebook");
             if (customActive) {
                 const parsed = JSON.parse(customActive);
@@ -590,6 +605,7 @@ class SecureReaderEngine {
         } catch (e) {}
         return typeof EBOOK_DATA !== "undefined" ? EBOOK_DATA : { chapters: [], metadata: {} };
     }
+
 
     renderSidebarChapters() {
         const list = document.getElementById("sidebarChapterList");

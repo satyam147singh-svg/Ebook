@@ -1909,3 +1909,135 @@ html {
     transform: translateX(4px);
 }
 
+/* ==========================================================================
+   MOBILE VIEW 100% WIDTH PERFECTION (Cards, Grids, Modals, Forms)
+   ========================================================================== */
+@media (max-width: 768px) {
+    *, *::before, *::after {
+        box-sizing: border-box !important;
+    }
+
+    html, body {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100vw !important;
+    }
+
+    .container, .template-container {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 16px !important;
+        padding-right: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* All Cards 100% Width */
+    .card,
+    .course-card-item,
+    .feature-card,
+    .pricing-card,
+    .curriculum-accordion-item,
+    .glass-panel,
+    .order-summary-box,
+    .cashfree-strip,
+    .stylish-email-card,
+    .chapter-card,
+    .faq-item {
+        width: 100% !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Grids collapse to single full-width column */
+    .courses-catalog-grid,
+    .template-grid-2col,
+    .hero-grid,
+    .features-grid,
+    .pricing-grid,
+    .curriculum-grid,
+    .security-banner {
+        display: flex !important;
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 18px !important;
+    }
+
+    /* Modal Mobile Optimization */
+    .modal-content,
+    .payment-modal,
+    .cf-gateway-dialog {
+        width: 95% !important;
+        max-width: 100% !important;
+        margin: 10px auto !important;
+        padding: 20px 16px !important;
+        border-radius: 16px !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Form Elements 100% Width */
+    .form-group,
+    .form-input,
+    .search-box-wrap,
+    .search-box-wrap input,
+    .btn-buy-course-direct,
+    .btn-view-course-landing,
+    .btn-primary,
+    .btn-secondary {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Dynamic Landing Hero and Pricing */
+    .dynamic-landing-hero {
+        padding: 40px 0 30px !important;
+    }
+
+    .dynamic-landing-hero h1 {
+        font-size: 26px !important;
+        line-height: 1.3 !important;
+    }
+
+    .dynamic-landing-hero p {
+        font-size: 16px !important;
+    }
+
+    .hero-actions-dynamic {
+        flex-direction: column !important;
+        width: 100% !important;
+        gap: 12px !important;
+    }
+
+    .hero-actions-dynamic .btn {
+        width: 100% !important;
+        text-align: center !important;
+        justify-content: center !important;
+    }
+}
+
+@media (max-width: 480px) {
+    h1, .hero-content h1, .courses-hero h1 {
+        font-size: 24px !important;
+    }
+
+    h2, .section-title {
+        font-size: 20px !important;
+    }
+
+    .course-card-body {
+        padding: 16px !important;
+    }
+
+    .course-pricing-row {
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+    }
+
+    .cat-pill {
+        padding: 7px 13px !important;
+        font-size: 0.78rem !important;
+    }
+}
+
+

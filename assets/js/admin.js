@@ -1377,7 +1377,7 @@ function setupAffiliateActions() {
 }
 
 /* ==========================================================================
-   6. COURSE & E-BOOK MANAGER (DRAG & DROP + MULTI-BOOK LAUNCHER)
+   6. COURSE & E-BOOK MANAGER (MULTI-COURSE CMS + 5 TEMPLATES)
    ========================================================================== */
 
 const DEFAULT_COURSES = [
@@ -1385,21 +1385,115 @@ const DEFAULT_COURSES = [
         id: "course_antigravity_master_guide",
         title: "Google Antigravity Master Guide: Build Any Software & Website in Minutes",
         subtitle: "The Ultimate Step-by-Step Blueprint to Autonomous AI Software Engineering",
-        category: "Agentic AI & Coding",
+        category: "AI & Autonomous Software",
         price: 199,
         strikePrice: 1499,
         author: "AI Engineering Guild & Antigravity Pioneers",
+        badge: "Bestseller",
         chapterCount: 9,
         isActive: true,
         createdAt: "2026-10-01",
-        isDefault: true
+        isDefault: true,
+        landingConfig: {
+            templateId: "template_tech",
+            heroHeadline: "Google Antigravity Se Koi Bhi Software & Website Record Time Me Banayein!",
+            heroSubheadline: "Zero coding experience required. Learn the master blueprint to generate production apps, SaaS, and bots with autonomous agent workflows.",
+            keyPoints: [
+                "Autonomous Planning & Architecture Blueprint",
+                "Multi-File Generation with Terminal Auto-Repair",
+                "Browser Subagent Testing & Verification",
+                "Freelance Client Delivery & ₹1L-₹3L Monthly Earning Roadmap"
+            ],
+            ctaText: "Unlock Master Guide & Reader Pass • ₹199"
+        }
+    },
+    {
+        id: "course_nextjs_ai_saas",
+        title: "Full-Stack Next.js 15 & AI SaaS Production Masterclass",
+        subtitle: "Build & Deploy Monetizable Micro-SaaS with Database, Auth & Payment Gateways",
+        category: "Full-Stack Web Dev",
+        price: 299,
+        strikePrice: 1999,
+        author: "Next.js Core Architecture Team",
+        badge: "New Launch",
+        chapterCount: 6,
+        isActive: true,
+        createdAt: "2026-10-02",
+        isDefault: false,
+        landingConfig: {
+            templateId: "template_saas",
+            heroHeadline: "Build & Launch Production AI Micro-SaaS in Record Time",
+            heroSubheadline: "Complete roadmap: Next.js 15 App Router, Server Actions, Stripe/Cashfree payments, Supabase auth, and multi-tenant billing.",
+            keyPoints: [
+                "Next.js 15 App Router & Server Components Architecture",
+                "Supabase Database, Row-Level Security & Auth Flow",
+                "Payment Webhooks & Multi-Currency Subscription Handling",
+                "Deploying Production Clusters to Vercel & Custom Domains"
+            ],
+            ctaText: "Enroll in Full-Stack SaaS Masterclass • ₹299"
+        }
+    },
+    {
+        id: "course_freelancing_agency",
+        title: "AI Freelance & Web Agency Monetization Blueprint",
+        subtitle: "Close ₹50,000+ Clients on Upwork, Fiverr & Instagram with 24-Hour AI Delivery",
+        category: "Freelance & Business",
+        price: 149,
+        strikePrice: 999,
+        author: "Elite Agency Founders",
+        badge: "Trending",
+        chapterCount: 5,
+        isActive: true,
+        createdAt: "2026-10-03",
+        isDefault: false,
+        landingConfig: {
+            templateId: "template_sales",
+            heroHeadline: "Scale Your AI Web Agency to ₹1,00,000 - ₹3,00,000 Monthly",
+            heroSubheadline: "Deliver high-ticket websites in 24 hours using autonomous AI coding tools. Cold outreach scripts, pricing calculators, and contract templates included.",
+            keyPoints: [
+                "1-Day Website Delivery Workflow with AI Agents",
+                "High-Converting Cold DM & Email Pitch Scripts",
+                "Client Contract & Retainer Agreement Blueprints",
+                "Live Case Studies: From Zero to ₹2,50,000 in 60 Days"
+            ],
+            ctaText: "Get Instant Access to Agency Blueprint • ₹149"
+        }
+    },
+    {
+        id: "course_prompt_systems",
+        title: "Prompt Engineering & Autonomous Multi-Agent Systems",
+        subtitle: "Architect Self-Healing Agent Workflows, Custom Skills & MCP Servers",
+        category: "AI & Automation",
+        price: 199,
+        strikePrice: 1299,
+        author: "Applied AI Research Lab",
+        badge: "Masterclass",
+        chapterCount: 7,
+        isActive: true,
+        createdAt: "2026-10-04",
+        isDefault: false,
+        landingConfig: {
+            templateId: "template_luxury",
+            heroHeadline: "Architect Autonomous Multi-Agent Systems with Zero Fluff",
+            heroSubheadline: "Master advanced prompt engineering frameworks (CPRE), model context protocol (MCP) servers, and custom agent memory injection.",
+            keyPoints: [
+                "Advanced CPRE Agentic Prompting Frameworks",
+                "Model Context Protocol (MCP) Server Integrations",
+                "Self-Healing Code Review Loops & Linters",
+                "Autonomous Background Daemons & Scheduled Crons"
+            ],
+            ctaText: "Unlock Advanced Prompt Masterclass • ₹199"
+        }
     }
 ];
 
 function getCoursesCatalog() {
     try {
         const saved = localStorage.getItem("antigravity_courses_catalog");
-        if (saved) return JSON.parse(saved);
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
     } catch (e) {}
     localStorage.setItem("antigravity_courses_catalog", JSON.stringify(DEFAULT_COURSES));
     return DEFAULT_COURSES;
@@ -1409,31 +1503,58 @@ function saveCoursesCatalog(catalog) {
     localStorage.setItem("antigravity_courses_catalog", JSON.stringify(catalog));
 }
 
+function getTemplateLabel(templateId) {
+    const map = {
+        "template_tech": "🚀 Tech Dark",
+        "template_luxury": "💎 Clean Luxury",
+        "template_sales": "🎯 Masterclass Sales",
+        "template_saas": "⚡ Modern SaaS",
+        "template_author": "📚 Author Showcase"
+    };
+    return map[templateId] || "🚀 Tech Dark";
+}
+
 function renderCoursesCatalog() {
     const tbody = document.getElementById("coursesCatalogTableBody");
     if (!tbody) return;
 
     const catalog = getCoursesCatalog();
-    const activeCourse = catalog.find(c => c.isActive) || catalog[0];
+    const activeCourses = catalog.filter(c => c.isActive);
+    const activeCount = activeCourses.length;
 
-    // Update active book status card
+    // Update active book status card and summary badge
     const activeTitle = document.getElementById("currentActiveBookTitle");
     const activeMeta = document.getElementById("currentActiveBookMeta");
-    if (activeTitle && activeCourse) activeTitle.textContent = activeCourse.title;
-    if (activeMeta && activeCourse) {
-        activeMeta.textContent = `Price: ₹${activeCourse.price} • Category: ${activeCourse.category || "General"} • Chapters: ${activeCourse.chapterCount || "N/A"} • All DRM Protections Active`;
+    const summaryBadge = document.getElementById("catalogCountSummaryBadge");
+
+    if (summaryBadge) {
+        summaryBadge.textContent = `Total: ${catalog.length} | 🟢 Active: ${activeCount} | ⚪ Draft: ${catalog.length - activeCount}`;
+    }
+
+    if (activeTitle) {
+        activeTitle.textContent = `${activeCount} Course${activeCount === 1 ? '' : 's'} Currently LIVE on Storefront`;
+    }
+    if (activeMeta) {
+        activeMeta.textContent = `All active courses appear on courses.html with instant purchase & DRM reader. Total courses in catalog: ${catalog.length}`;
     }
 
     if (catalog.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="empty-state">No courses in catalog.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" class="empty-state">No courses in catalog. Add one above!</td></tr>`;
         return;
     }
 
     tbody.innerHTML = catalog.map(c => `
-        <tr>
+        <tr id="courseRow_${escapeHtml(c.id)}">
             <td>
-                <strong style="color: #fff; font-size: 0.95rem;">${escapeHtml(c.title)}</strong><br>
-                <span style="color: #94a3b8; font-size: 0.78rem;">${escapeHtml(c.subtitle || "")}</span>
+                <div style="display: flex; align-items: flex-start; gap: 8px;">
+                    <div>
+                        <strong style="color: #fff; font-size: 0.95rem;">${escapeHtml(c.title)}</strong>
+                        ${c.badge ? `<span style="margin-left: 6px; font-size: 0.68rem; background: rgba(0, 240, 255, 0.15); color: #00f0ff; padding: 2px 6px; border-radius: 4px; font-weight: 700;">${escapeHtml(c.badge)}</span>` : ''}
+                        <br>
+                        <span style="color: #94a3b8; font-size: 0.78rem;">${escapeHtml(c.subtitle || "")}</span>
+                        <div style="font-size: 0.72rem; color: #64748b; margin-top: 3px;">By: ${escapeHtml(c.author || "Admin")}</div>
+                    </div>
+                </div>
             </td>
             <td>
                 <span style="background: rgba(255,255,255,0.06); padding: 3px 8px; border-radius: 4px; font-size: 0.75rem; color: #00f0ff;">
@@ -1450,33 +1571,43 @@ function renderCoursesCatalog() {
                 </div>
             </td>
             <td>
-                ${c.isActive ? `
-                    <span class="badge-status verified" style="display: inline-flex; align-items: center; gap: 4px;">
-                        🟢 Active Live
-                    </span>
-                ` : `
-                    <span class="badge-status pending" style="display: inline-flex; align-items: center; gap: 4px;">
-                        ⚪ Draft / Inactive
-                    </span>
-                `}
+                <span style="font-size: 0.75rem; color: #a78bfa; background: rgba(167, 139, 250, 0.12); padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(167, 139, 250, 0.25);">
+                    ${getTemplateLabel(c.landingConfig?.templateId)}
+                </span>
             </td>
             <td>
-                <div style="display: flex; gap: 6px; align-items: center;">
-                    ${!c.isActive ? `
-                        <button type="button" class="table-action-btn btn-set-active-course" data-id="${escapeHtml(c.id)}" style="background: rgba(16, 185, 129, 0.2); border-color: #10b981; color: #34d399;">
-                            ⭐ Set Active
+                <div style="display: flex; flex-direction: column; gap: 6px; align-items: flex-start;">
+                    ${c.isActive ? `
+                        <span class="badge-status verified" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem;">
+                            🟢 LIVE (Active)
+                        </span>
+                        <button type="button" class="table-action-btn btn-toggle-course-status" data-id="${escapeHtml(c.id)}" style="background: rgba(239, 68, 68, 0.12); border-color: rgba(239, 68, 68, 0.4); color: #f87171; font-size: 0.72rem; padding: 3px 8px;">
+                            Make Draft
                         </button>
                     ` : `
-                        <span style="font-size: 0.75rem; color: #10b981; font-weight: 600;">Current Live</span>
-                    `}
-                    <a href="reader.html" target="_blank" class="table-action-btn" title="Preview Reader">
-                        👁️ Reader
-                    </a>
-                    ${!c.isDefault ? `
-                        <button type="button" class="table-action-btn btn-del-course" data-id="${escapeHtml(c.id)}" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #f87171;" title="Delete Course">
-                            🗑️
+                        <span class="badge-status pending" style="display: inline-flex; align-items: center; gap: 4px; font-size: 0.75rem;">
+                            ⚪ Draft (Inactive)
+                        </span>
+                        <button type="button" class="table-action-btn btn-toggle-course-status" data-id="${escapeHtml(c.id)}" style="background: rgba(16, 185, 129, 0.15); border-color: #10b981; color: #34d399; font-size: 0.72rem; padding: 3px 8px;">
+                            🟢 Make Live
                         </button>
-                    ` : ''}
+                    `}
+                </div>
+            </td>
+            <td>
+                <div style="display: flex; gap: 6px; align-items: center; flex-wrap: wrap;">
+                    <button type="button" class="table-action-btn btn-edit-course" data-id="${escapeHtml(c.id)}" style="background: rgba(245, 158, 11, 0.15); border-color: #f59e0b; color: #fbbf24;" title="Edit Course Details & Landing Page">
+                        ✏️ Edit
+                    </button>
+                    <a href="course.html?id=${encodeURIComponent(c.id)}" target="_blank" class="table-action-btn" style="background: rgba(0, 240, 255, 0.12); border-color: #00f0ff; color: #00f0ff;" title="Open Course Landing Page">
+                        🌐 Page
+                    </a>
+                    <a href="reader.html?courseId=${encodeURIComponent(c.id)}" target="_blank" class="table-action-btn" title="Preview Reader">
+                        📖 Reader
+                    </a>
+                    <button type="button" class="table-action-btn btn-del-course" data-id="${escapeHtml(c.id)}" style="background: rgba(239, 68, 68, 0.15); border-color: #ef4444; color: #f87171;" title="Delete Course">
+                        🗑️ Delete
+                    </button>
                 </div>
             </td>
         </tr>
@@ -1850,7 +1981,7 @@ function setupCourseDropZoneAndUploader() {
     if (form) {
         form.addEventListener("submit", (e) => {
             e.preventDefault();
-            saveCourseSubmission(true);
+            saveCourseSubmission(null);
         });
     }
 
@@ -1869,106 +2000,276 @@ function setupCourseDropZoneAndUploader() {
         });
     }
 
-    function saveCourseSubmission(makeActive = true) {
-        const titleInput = document.getElementById("courseInputTitle");
-        let title = titleInput ? titleInput.value.trim() : "";
-        const subtitle = (document.getElementById("courseInputSubtitle")?.value || "").trim();
-        const category = (document.getElementById("courseInputCategory")?.value || "AI & Autonomous Software").trim();
-        const price = parseInt(document.getElementById("courseInputPrice")?.value) || 199;
-        const strikePrice = parseInt(document.getElementById("courseInputStrikePrice")?.value) || (price * 5);
-        const author = (document.getElementById("courseInputAuthor")?.value || "Google Antigravity Team").trim();
-
-        if (!title) {
-            title = "Autonomous AI Agent Master Guide " + new Date().getFullYear();
-            if (titleInput) titleInput.value = title;
-        }
-
-        const courseId = "course_" + Date.now();
-        const catalog = getCoursesCatalog();
-
-        if (makeActive) {
-            // Deactivate all others
-            catalog.forEach(c => c.isActive = false);
-        }
-
-        const chapterCount = CURRENT_PARSED_CHAPTERS.length > 0 ? CURRENT_PARSED_CHAPTERS.length : 5;
-
-        const newCourseEntry = {
-            id: courseId,
-            title: title,
-            subtitle: subtitle,
-            category: category,
-            price: price,
-            strikePrice: strikePrice,
-            author: author,
-            chapterCount: chapterCount,
-            isActive: makeActive,
-            createdAt: new Date().toISOString().split("T")[0],
-            isDefault: false
-        };
-
-        catalog.unshift(newCourseEntry);
-        saveCoursesCatalog(catalog);
-
-        // If makeActive, save full payload into active ebook storage
-        if (makeActive) {
-            const chaptersToSave = CURRENT_PARSED_CHAPTERS.length > 0
-                ? CURRENT_PARSED_CHAPTERS
-                : generateFallbackChapters(title);
-
-            const activeEbookPayload = {
-                metadata: {
-                    title: title,
-                    subtitle: subtitle,
-                    author: author,
-                    edition: "2026-2027 Autonomous Edition",
-                    totalPages: chapterCount * 12
-                },
-                chapters: chaptersToSave
-            };
-            localStorage.setItem("antigravity_active_ebook", JSON.stringify(activeEbookPayload));
-
-            // Also update main payment price
-            const currentConfig = JSON.parse(localStorage.getItem("antigravity_admin_config") || "{}");
-            currentConfig.price = price;
-            currentConfig.originalPrice = strikePrice;
-            localStorage.setItem("antigravity_admin_config", JSON.stringify(currentConfig));
-            loadSettingsIntoForm();
-        }
-
-        renderCoursesCatalog();
-        renderCurrentActiveBookNotice();
-
-        alert(`🎉 Course "${title}" successfully ${makeActive ? 'published and made ACTIVE on landing page & reader!' : 'saved to catalog!'}`);
-
-        // Reset form
-        form.reset();
-        document.getElementById("courseInputPrice").value = "199";
-        document.getElementById("courseInputStrikePrice").value = "1499";
-        document.getElementById("courseInputCategory").value = "AI & Autonomous Software";
-        document.getElementById("courseInputAuthor").value = "Google Antigravity Team";
-
-        CURRENT_PARSED_CHAPTERS = [];
-        renderParsedChaptersPreview([]);
-        if (fileInfo) fileInfo.style.display = "none";
+    const btnCancelEdit = document.getElementById("btnCancelEditCourse");
+    if (btnCancelEdit) {
+        btnCancelEdit.addEventListener("click", (e) => {
+            e.preventDefault();
+            cancelCourseEdit();
+        });
     }
 
-    // 9. Delegate Course Catalog Actions (Set Active, Delete)
+    // 9. Delegate Course Catalog Actions (Toggle Status, Edit, Delete)
     document.addEventListener("click", (e) => {
-        const btnActive = e.target.closest(".btn-set-active-course");
-        if (btnActive) {
-            const id = btnActive.getAttribute("data-id");
-            setActiveCourse(id);
+        const btnToggle = e.target.closest(".btn-toggle-course-status");
+        if (btnToggle) {
+            const id = btnToggle.getAttribute("data-id");
+            if (id) toggleCourseStatus(id);
+            return;
+        }
+
+        const btnEdit = e.target.closest(".btn-edit-course");
+        if (btnEdit) {
+            const id = btnEdit.getAttribute("data-id");
+            if (id) editCourse(id);
             return;
         }
 
         const btnDel = e.target.closest(".btn-del-course");
         if (btnDel) {
             const id = btnDel.getAttribute("data-id");
-            deleteCourse(id);
+            if (id) deleteCourse(id);
             return;
         }
     });
+}
+
+function saveCourseSubmission(forceActive = null) {
+    const editId = document.getElementById("courseEditId")?.value || "";
+    const titleInput = document.getElementById("courseInputTitle");
+    let title = titleInput ? titleInput.value.trim() : "";
+    const subtitle = (document.getElementById("courseInputSubtitle")?.value || "").trim();
+    const category = (document.getElementById("courseInputCategory")?.value || "AI & Autonomous Software").trim();
+    const price = parseInt(document.getElementById("courseInputPrice")?.value) || 199;
+    const strikePrice = parseInt(document.getElementById("courseInputStrikePrice")?.value) || (price * 5);
+    const author = (document.getElementById("courseInputAuthor")?.value || "Google Antigravity Team").trim();
+    const badge = (document.getElementById("courseInputBadge")?.value || "Bestseller").trim();
+
+    // Active switch: if forceActive is explicitly boolean, use that, else use checkbox
+    const activeCheck = document.getElementById("courseInputIsActive");
+    let isActive = (forceActive !== null) ? forceActive : (activeCheck ? activeCheck.checked : true);
+
+    if (!title) {
+        alert("Kripya Course ka Title enter karein!");
+        if (titleInput) titleInput.focus();
+        return;
+    }
+
+    // Selected template
+    const selectedTemplateRadio = document.querySelector('input[name="courseTemplate"]:checked');
+    const templateId = selectedTemplateRadio ? selectedTemplateRadio.value : "template_tech";
+
+    // Landing Page CMS details
+    const heroHeadline = (document.getElementById("courseInputHeadline")?.value || "").trim() || title;
+    const heroSubheadline = (document.getElementById("courseInputSubheadline")?.value || "").trim() || subtitle;
+    const kp1 = (document.getElementById("courseInputKeyPoint1")?.value || "Autonomous Planning & Architecture Blueprint").trim();
+    const kp2 = (document.getElementById("courseInputKeyPoint2")?.value || "Multi-File Codebase Generation with Terminal Auto-Repair").trim();
+    const kp3 = (document.getElementById("courseInputKeyPoint3")?.value || "Automated Testing & End-to-End Validation").trim();
+    const kp4 = (document.getElementById("courseInputKeyPoint4")?.value || "Client Delivery & Monthly Revenue Monetization Strategy").trim();
+    const ctaText = (document.getElementById("courseInputCtaText")?.value || `Unlock Complete Guide • ₹${price}`).trim();
+
+    const landingConfig = {
+        templateId,
+        heroHeadline,
+        heroSubheadline,
+        keyPoints: [kp1, kp2, kp3, kp4],
+        ctaText
+    };
+
+    const chapterCount = CURRENT_PARSED_CHAPTERS.length > 0 ? CURRENT_PARSED_CHAPTERS.length : 5;
+    const chaptersToSave = CURRENT_PARSED_CHAPTERS.length > 0
+        ? CURRENT_PARSED_CHAPTERS
+        : generateFallbackChapters(title);
+
+    const ebookData = {
+        metadata: {
+            title: title,
+            subtitle: subtitle,
+            author: author,
+            edition: "2026-2027 Autonomous Edition",
+            totalPages: chapterCount * 12
+        },
+        chapters: chaptersToSave
+    };
+
+    const catalog = getCoursesCatalog();
+
+    if (editId) {
+        // UPDATE EXISTING COURSE
+        const idx = catalog.findIndex(c => c.id === editId);
+        if (idx !== -1) {
+            catalog[idx] = {
+                ...catalog[idx],
+                title,
+                subtitle,
+                category,
+                price,
+                strikePrice,
+                author,
+                badge,
+                chapterCount,
+                isActive,
+                landingConfig,
+                ebookData,
+                updatedAt: new Date().toISOString()
+            };
+            saveCoursesCatalog(catalog);
+            alert(`✅ Course "${title}" successfully updated!\nTemplate: ${getTemplateLabel(templateId)}\nStatus: ${isActive ? '🟢 Active (Visible on Storefront)' : '⚪ Draft (Hidden)'}`);
+        }
+    } else {
+        // CREATE NEW COURSE (Supports multiple simultaneous active courses!)
+        const newCourseId = "course_" + Date.now();
+        const newCourseEntry = {
+            id: newCourseId,
+            title,
+            subtitle,
+            category,
+            price,
+            strikePrice,
+            author,
+            badge,
+            chapterCount,
+            isActive,
+            createdAt: new Date().toISOString().split("T")[0],
+            isDefault: false,
+            landingConfig,
+            ebookData
+        };
+        catalog.unshift(newCourseEntry);
+        saveCoursesCatalog(catalog);
+        alert(`🎉 Course "${title}" successfully created!\nTemplate: ${getTemplateLabel(templateId)}\nStatus: ${isActive ? '🟢 LIVE on Courses Page' : '⚪ Saved as Draft'}`);
+    }
+
+    cancelCourseEdit();
+    renderCoursesCatalog();
+    renderCurrentActiveBookNotice();
+}
+
+function editCourse(courseId) {
+    const catalog = getCoursesCatalog();
+    const course = catalog.find(c => c.id === courseId);
+    if (!course) {
+        alert("Course not found!");
+        return;
+    }
+
+    const editIdInput = document.getElementById("courseEditId");
+    if (editIdInput) editIdInput.value = course.id;
+
+    // Show notice banner
+    const notice = document.getElementById("courseEditingNotice");
+    const noticeTitle = document.getElementById("editingCourseTitleDisplay");
+    if (notice) notice.style.display = "flex";
+    if (noticeTitle) noticeTitle.textContent = course.title;
+
+    const heading = document.getElementById("courseFormSectionHeading");
+    if (heading) heading.textContent = `✏️ Edit Course: ${course.title}`;
+
+    const btnSubmit = document.getElementById("btnPublishAndActivate");
+    if (btnSubmit) btnSubmit.textContent = "💾 Update Course & Landing Page";
+
+    // Fields
+    const titleInput = document.getElementById("courseInputTitle");
+    const subInput = document.getElementById("courseInputSubtitle");
+    const catInput = document.getElementById("courseInputCategory");
+    const priceInput = document.getElementById("courseInputPrice");
+    const strikeInput = document.getElementById("courseInputStrikePrice");
+    const authorInput = document.getElementById("courseInputAuthor");
+    const badgeInput = document.getElementById("courseInputBadge");
+    const activeCheck = document.getElementById("courseInputIsActive");
+
+    if (titleInput) titleInput.value = course.title || "";
+    if (subInput) subInput.value = course.subtitle || "";
+    if (catInput) catInput.value = course.category || "AI & Autonomous Software";
+    if (priceInput) priceInput.value = course.price || 199;
+    if (strikeInput) strikeInput.value = course.strikePrice || 1499;
+    if (authorInput) authorInput.value = course.author || "Google Antigravity Team";
+    if (badgeInput) badgeInput.value = course.badge || "Bestseller";
+    if (activeCheck) activeCheck.checked = !!course.isActive;
+
+    // Template Radio
+    const templateId = course.landingConfig?.templateId || "template_tech";
+    const radio = document.querySelector(`input[name="courseTemplate"][value="${templateId}"]`);
+    if (radio) radio.checked = true;
+
+    // Landing Page CMS Fields
+    const headlineInput = document.getElementById("courseInputHeadline");
+    const subheadlineInput = document.getElementById("courseInputSubheadline");
+    const kp1 = document.getElementById("courseInputKeyPoint1");
+    const kp2 = document.getElementById("courseInputKeyPoint2");
+    const kp3 = document.getElementById("courseInputKeyPoint3");
+    const kp4 = document.getElementById("courseInputKeyPoint4");
+    const ctaInput = document.getElementById("courseInputCtaText");
+
+    const lc = course.landingConfig || {};
+    if (headlineInput) headlineInput.value = lc.heroHeadline || course.title || "";
+    if (subheadlineInput) subheadlineInput.value = lc.heroSubheadline || course.subtitle || "";
+    if (kp1) kp1.value = (lc.keyPoints && lc.keyPoints[0]) || "Autonomous Planning & Architecture Blueprint";
+    if (kp2) kp2.value = (lc.keyPoints && lc.keyPoints[1]) || "Multi-File Codebase Generation with Terminal Auto-Repair";
+    if (kp3) kp3.value = (lc.keyPoints && lc.keyPoints[2]) || "Automated Testing & End-to-End Validation";
+    if (kp4) kp4.value = (lc.keyPoints && lc.keyPoints[3]) || "Client Delivery & Monthly Revenue Monetization Strategy";
+    if (ctaInput) ctaInput.value = lc.ctaText || `Unlock Complete Guide • ₹${course.price}`;
+
+    // Load chapters preview
+    if (course.ebookData && Array.isArray(course.ebookData.chapters) && course.ebookData.chapters.length > 0) {
+        CURRENT_PARSED_CHAPTERS = JSON.parse(JSON.stringify(course.ebookData.chapters));
+    } else {
+        CURRENT_PARSED_CHAPTERS = generateFallbackChapters(course.title);
+    }
+    renderParsedChaptersPreview(CURRENT_PARSED_CHAPTERS);
+
+    // Smooth scroll to form card
+    const formCard = document.getElementById("courseFormCard");
+    if (formCard) formCard.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function cancelCourseEdit() {
+    const editIdInput = document.getElementById("courseEditId");
+    if (editIdInput) editIdInput.value = "";
+
+    const notice = document.getElementById("courseEditingNotice");
+    if (notice) notice.style.display = "none";
+
+    const heading = document.getElementById("courseFormSectionHeading");
+    if (heading) heading.textContent = "📤 Add & Launch New E-Book / Course";
+
+    const btnSubmit = document.getElementById("btnPublishAndActivate");
+    if (btnSubmit) btnSubmit.textContent = "💾 Save & Publish Course / Landing Page";
+
+    const form = document.getElementById("newCourseForm");
+    if (form) form.reset();
+
+    const priceEl = document.getElementById("courseInputPrice");
+    if (priceEl) priceEl.value = "199";
+    const strikeEl = document.getElementById("courseInputStrikePrice");
+    if (strikeEl) strikeEl.value = "1499";
+    const catEl = document.getElementById("courseInputCategory");
+    if (catEl) catEl.value = "AI & Autonomous Software";
+    const authorEl = document.getElementById("courseInputAuthor");
+    if (authorEl) authorEl.value = "Google Antigravity Team";
+    const badgeEl = document.getElementById("courseInputBadge");
+    if (badgeEl) badgeEl.value = "Bestseller";
+    const activeEl = document.getElementById("courseInputIsActive");
+    if (activeEl) activeEl.checked = true;
+
+    CURRENT_PARSED_CHAPTERS = [];
+    renderParsedChaptersPreview([]);
+    const fileInfo = document.getElementById("dropFileInfo");
+    if (fileInfo) fileInfo.style.display = "none";
+}
+
+function toggleCourseStatus(courseId) {
+    const catalog = getCoursesCatalog();
+    const course = catalog.find(c => c.id === courseId);
+    if (!course) return;
+
+    course.isActive = !course.isActive;
+    saveCoursesCatalog(catalog);
+    renderCoursesCatalog();
+    renderCurrentActiveBookNotice();
+
+    alert(`Course "${course.title}" status: ${course.isActive ? '🟢 LIVE (Active on storefront)' : '⚪ DRAFT (Inactive)'}`);
+}
+
 }
 
 // Helper: Read plain text file
@@ -2295,30 +2596,14 @@ function renderCurrentActiveBookNotice() {
     const metaEl = document.getElementById("currentActiveBookMeta");
     if (!titleEl || !metaEl) return;
 
-    // Check custom active ebook first
-    const customActiveStr = localStorage.getItem("antigravity_active_ebook");
-    if (customActiveStr) {
-        try {
-            const parsed = JSON.parse(customActiveStr);
-            if (parsed && parsed.metadata && parsed.metadata.title) {
-                titleEl.textContent = parsed.metadata.title;
-                const chCount = (parsed.chapters && parsed.chapters.length) || 5;
-                const config = JSON.parse(localStorage.getItem("antigravity_admin_config") || "{}");
-                const price = config.price || 199;
-                metaEl.textContent = `Price: ₹${price} • Total Chapters: ${chCount} • Custom E-Book Active on Reader & Landing Page`;
-                return;
-            }
-        } catch (e) {}
-    }
-
-    // Fallback to catalog active
     const catalog = getCoursesCatalog();
-    const activeCourse = catalog.find(c => c.isActive) || catalog[0];
-    if (activeCourse) {
-        titleEl.textContent = activeCourse.title;
-        metaEl.textContent = `Price: ₹${activeCourse.price} • Total Chapters: ${activeCourse.chapterCount || 9} • All DRM Protections Active`;
-    }
+    const activeCourses = catalog.filter(c => c.isActive);
+    const activeCount = activeCourses.length;
+
+    titleEl.textContent = `${activeCount} Course${activeCount === 1 ? '' : 's'} Currently LIVE on Storefront`;
+    metaEl.textContent = `${activeCount} active courses are visible on courses.html with instant checkout. Total courses in catalog: ${catalog.length}`;
 }
+
 
 function generateFallbackChapters(title) {
     return [1, 2, 3, 4, 5].map(n => ({
@@ -2338,43 +2623,29 @@ function generateFallbackChapters(title) {
 }
 
 function setActiveCourse(courseId) {
-    const catalog = getCoursesCatalog();
-    const course = catalog.find(c => c.id === courseId);
-    if (!course) return;
-
-    catalog.forEach(c => c.isActive = (c.id === courseId));
-    saveCoursesCatalog(catalog);
-
-    // If it's default antigravity guide, remove custom active ebook so default EBOOK_DATA is used
-    if (course.isDefault) {
-        localStorage.removeItem("antigravity_active_ebook");
-    }
-
-    // Update pricing
-    const config = JSON.parse(localStorage.getItem("antigravity_admin_config") || "{}");
-    config.price = course.price;
-    if (course.strikePrice) config.originalPrice = course.strikePrice;
-    localStorage.setItem("antigravity_admin_config", JSON.stringify(config));
-
-    loadSettingsIntoForm();
-    renderCoursesCatalog();
-    renderCurrentActiveBookNotice();
-    alert(`⭐ "${course.title}" is now the ACTIVE E-Book!\nWebsite pricing and reader content have been updated.`);
+    toggleCourseStatus(courseId);
 }
 
 function deleteCourse(courseId) {
     let catalog = getCoursesCatalog();
     const course = catalog.find(c => c.id === courseId);
-    if (!course || course.isDefault) {
-        alert("Cannot delete default core book.");
+    if (!course) {
+        alert("Course not found!");
         return;
     }
 
-    if (confirm(`Kya aap "${course.title}" ko catalog se delete karna chahte hain?`)) {
+    const isDefault = !!course.isDefault;
+    const confirmMsg = isDefault
+        ? `⚠️ "${course.title}" ek default course hai. Kya aap ise sach me catalog se delete karna chahte hain?`
+        : `Kya aap "${course.title}" ko catalog se permanently delete karna chahte hain?`;
+
+    if (confirm(confirmMsg)) {
         catalog = catalog.filter(c => c.id !== courseId);
         saveCoursesCatalog(catalog);
         renderCoursesCatalog();
         renderCurrentActiveBookNotice();
+        alert(`🗑️ "${course.title}" ko catalog se delete kar diya gaya hai.`);
     }
 }
+
 
