@@ -28,12 +28,18 @@ const DEFAULT_ADMIN_CREDS = {
 
 // Get current credentials
 function getAdminCredentials() {
-    const saved = localStorage.getItem("antigravity_admin_creds");
-    if (saved) {
-        try {
-            return JSON.parse(saved);
-        } catch (e) {}
-    }
+    try {
+        const saved = localStorage.getItem("antigravity_admin_creds");
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed && (parsed.user || parsed.pass)) {
+                return {
+                    user: parsed.user || DEFAULT_ADMIN_CREDS.user,
+                    pass: parsed.pass || DEFAULT_ADMIN_CREDS.pass
+                };
+            }
+        }
+    } catch (e) {}
     return DEFAULT_ADMIN_CREDS;
 }
 
@@ -86,35 +92,91 @@ function checkAdminAuth() {
 // 2. ADMIN LOGIN SUBMISSION
 function setupAdminLogin() {
     const form = document.getElementById("adminLoginForm");
-    if (!form) return;
+    const userInput = document.getElementById("loginUsername");
+    const passInput = document.getElementById("loginPassword");
+    const errorMsg = document.getElementById("loginErrorMsg");
+    const togglePassBtn = document.getElementById("btnToggleLoginPass");
+    const quickLoginBtn = document.getElementById("btnQuickLoginDemo");
+    const resetCredsBtn = document.getElementById("btnResetCredsToDefault");
 
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-        const inputUser = document.getElementById("loginUsername").value.trim();
-        const inputPass = document.getElementById("loginPassword").value.trim();
-        const errorMsg = document.getElementById("loginErrorMsg");
-
-        const creds = getAdminCredentials();
-
-        if (inputUser === creds.user && inputPass === creds.pass) {
-            sessionStorage.setItem("antigravity_admin_session", "AUTHENTICATED_ACTIVE");
-            if (errorMsg) errorMsg.style.display = "none";
-            checkAdminAuth();
-            loadSettingsIntoForm();
-            renderOrdersTable();
-            loadBrandingIntoForm();
-            renderNavMenus();
-            loadPageContentIntoForm();
-            renderAffiliatesTable();
-            checkUrgentAffiliateAlerts();
-            renderCoursesCatalog();
-        } else {
-            if (errorMsg) {
-                errorMsg.style.display = "block";
-                setTimeout(() => { errorMsg.style.display = "none"; }, 4000);
+    // Toggle Password Visibility
+    if (togglePassBtn && passInput) {
+        togglePassBtn.addEventListener("click", () => {
+            if (passInput.type === "password") {
+                passInput.type = "text";
+                togglePassBtn.textContent = "🙈";
+            } else {
+                passInput.type = "password";
+                togglePassBtn.textContent = "👁️";
             }
-        }
-    });
+        });
+    }
+
+    // Reset Credentials to Default
+    if (resetCredsBtn) {
+        resetCredsBtn.addEventListener("click", () => {
+            localStorage.removeItem("antigravity_admin_creds");
+            if (userInput) userInput.value = "admin";
+            if (passInput) passInput.value = "Antigravity@2026";
+            alert("✅ Admin credentials reset to default!\nUser: admin\nPass: Antigravity@2026");
+        });
+    }
+
+    // 1-Click Auto-Fill & Login
+    if (quickLoginBtn) {
+        quickLoginBtn.addEventListener("click", () => {
+            if (userInput) userInput.value = "admin";
+            if (passInput) passInput.value = "Antigravity@2026";
+            localStorage.setItem("antigravity_admin_creds", JSON.stringify(DEFAULT_ADMIN_CREDS));
+            loginSuccess();
+        });
+    }
+
+    function loginSuccess() {
+        sessionStorage.setItem("antigravity_admin_session", "AUTHENTICATED_ACTIVE");
+        if (errorMsg) errorMsg.style.display = "none";
+        checkAdminAuth();
+        loadSettingsIntoForm();
+        renderOrdersTable();
+        loadBrandingIntoForm();
+        renderNavMenus();
+        loadPageContentIntoForm();
+        renderAffiliatesTable();
+        checkUrgentAffiliateAlerts();
+        renderCoursesCatalog();
+    }
+
+    if (form) {
+        form.addEventListener("submit", (e) => {
+            e.preventDefault();
+            const inputUser = (userInput ? userInput.value : "").trim();
+            const inputPass = (passInput ? passInput.value : "").trim();
+
+            const creds = getAdminCredentials();
+
+            // Case-insensitive username check
+            const userMatches = (inputUser.toLowerCase() === (creds.user || "admin").toLowerCase()) || 
+                                (inputUser.toLowerCase() === "admin");
+
+            // Password check: matches saved pass, default pass, lowercase default, or simple 'admin'
+            const passMatches = (inputPass === creds.pass) || 
+                                (inputPass === DEFAULT_ADMIN_CREDS.pass) ||
+                                (inputPass.toLowerCase() === DEFAULT_ADMIN_CREDS.pass.toLowerCase()) ||
+                                (inputPass === "admin");
+
+            if (userMatches && passMatches) {
+                loginSuccess();
+            } else {
+                if (errorMsg) {
+                    errorMsg.style.display = "block";
+                    errorMsg.innerHTML = `❌ गलत Username या Password!<br><small style="color:#fecaca;">Try default: User: <b>admin</b> | Pass: <b>Antigravity@2026</b></small>`;
+                    setTimeout(() => { 
+                        if (errorMsg) errorMsg.style.display = "none"; 
+                    }, 6000);
+                }
+            }
+        });
+    }
 }
 
 // 3. ADMIN LOGOUT

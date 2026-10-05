@@ -33,7 +33,10 @@
                 
                 <div class="form-group" style="text-align: left;">
                     <label class="form-label" for="loginPassword">Admin Password</label>
-                    <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required>
+                    <div style="position: relative; display: flex; align-items: center;">
+                        <input type="password" id="loginPassword" class="form-input" placeholder="••••••••••••" required style="padding-right: 42px;">
+                        <button type="button" id="btnToggleLoginPass" style="position: absolute; right: 10px; background: none; border: none; color: #94a3b8; font-size: 1.1rem; cursor: pointer; padding: 4px;" title="Show/Hide Password">👁️</button>
+                    </div>
                 </div>
 
                 <div id="loginErrorMsg" style="display: none; background: rgba(239, 68, 68, 0.15); border: 1px solid #ef4444; color: #f87171; padding: 10px; border-radius: 8px; font-size: 0.82rem; margin-bottom: 16px;">
@@ -43,12 +46,18 @@
                 <button type="submit" class="btn btn-primary" style="width: 100%; padding: 13px; font-size: 1rem;">
                     🔓 Login to Seller Dashboard
                 </button>
+
+                <button type="button" id="btnQuickLoginDemo" class="btn btn-secondary" style="width: 100%; margin-top: 10px; font-size: 0.85rem; padding: 10px; border-color: rgba(0, 240, 255, 0.4); color: #00f0ff; background: rgba(0, 240, 255, 0.08);">
+                    ⚡ 1-Click Auto-Fill &amp; Direct Login
+                </button>
             </form>
 
-            <div style="margin-top: 22px; font-size: 0.8rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 16px;">
+            <div style="margin-top: 20px; font-size: 0.8rem; color: #64748b; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 14px;">
                 Default Credentials:<br>
                 User: <code style="color: #00f0ff;">admin</code> • Pass: <code style="color: #00f0ff;">Antigravity@2026</code><br>
-                <small style="color: #475569;">(लॉगिन करने के बाद आप अंदर से पासवर्ड बदल सकते हैं)</small>
+                <button type="button" id="btnResetCredsToDefault" style="background: none; border: none; color: #38bdf8; text-decoration: underline; cursor: pointer; font-size: 0.78rem; margin-top: 6px;">
+                    🔄 Reset Password to Default (Antigravity@2026)
+                </button>
             </div>
         </div>
     </div>
