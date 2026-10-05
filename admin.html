@@ -60,13 +60,57 @@
             var errorMsg = document.getElementById("loginErrorMsg");
             if (errorMsg) errorMsg.style.display = "none";
             window.checkAdminAuth();
-            if (typeof renderOrdersTable === "function") renderOrdersTable();
-            if (typeof renderCoursesCatalog === "function") renderCoursesCatalog();
-            if (typeof loadSettingsIntoForm === "function") loadSettingsIntoForm();
-            if (typeof loadBrandingIntoForm === "function") loadBrandingIntoForm();
-            if (typeof renderNavMenus === "function") renderNavMenus();
-            if (typeof loadPageContentIntoForm === "function") loadPageContentIntoForm();
-            if (typeof renderAffiliatesTable === "function") renderAffiliatesTable();
+            window.switchAdminTab("tab-orders");
+            if (typeof initAdminApp === "function") initAdminApp();
+        };
+
+        window.switchAdminTab = function(targetId) {
+            if (!targetId) return;
+            var tabButtons = document.querySelectorAll(".admin-tab-btn");
+            var tabPanes = document.querySelectorAll(".admin-tab-pane");
+
+            tabButtons.forEach(function(btn) {
+                if (btn.getAttribute("data-tab") === targetId) {
+                    btn.classList.add("active");
+                } else {
+                    btn.classList.remove("active");
+                }
+            });
+
+            tabPanes.forEach(function(pane) {
+                if (pane.id === targetId) {
+                    pane.classList.add("active");
+                    pane.style.display = "block";
+                } else {
+                    pane.classList.remove("active");
+                    pane.style.display = "none";
+                }
+            });
+
+            // Initialize or refresh target tab data
+            if (targetId === "tab-orders") {
+                if (typeof renderOrdersTable === "function") renderOrdersTable();
+                if (typeof loadSettingsIntoForm === "function") loadSettingsIntoForm();
+            } else if (targetId === "tab-affiliates") {
+                if (typeof renderAffiliatesTable === "function") renderAffiliatesTable();
+                if (typeof checkUrgentAffiliateAlerts === "function") checkUrgentAffiliateAlerts();
+            } else if (targetId === "tab-courses") {
+                if (typeof renderCoursesCatalog === "function") renderCoursesCatalog();
+                if (typeof renderCurrentActiveBookNotice === "function") renderCurrentActiveBookNotice();
+            } else if (targetId === "tab-branding") {
+                if (typeof loadBrandingIntoForm === "function") loadBrandingIntoForm();
+            } else if (targetId === "tab-menus") {
+                if (typeof renderNavMenus === "function") renderNavMenus();
+            } else if (targetId === "tab-content") {
+                if (typeof loadPageContentIntoForm === "function") loadPageContentIntoForm();
+            }
+        };
+
+        window.handleAdminLogout = function() {
+            if (confirm("Kya aap Admin Portal se Logout karna chahte hain?")) {
+                sessionStorage.removeItem("antigravity_admin_session");
+                window.checkAdminAuth();
+            }
         };
 
         window.handleAdminLogin = function(e) {
@@ -356,7 +400,7 @@
                 </div>
                 <div style="display: flex; gap: 10px; align-items: center;">
                     <a href="index.html" target="_blank" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px;">👁️ Landing Page</a>
-                    <button type="button" id="btnAdminLogout" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
+                    <button type="button" id="btnAdminLogout" onclick="handleAdminLogout()" class="btn btn-secondary" style="font-size: 0.85rem; padding: 8px 16px; border-color: rgba(239, 68, 68, 0.4); color: #f87171;">
                         🚪 Logout
                     </button>
                 </div>
@@ -384,12 +428,12 @@
 
             <!-- ADMIN NAVIGATION TABS -->
             <div class="admin-tabs-nav">
-                <button type="button" class="admin-tab-btn active" data-tab="tab-orders">📦 Orders & UPI Setup</button>
-                <button type="button" class="admin-tab-btn" data-tab="tab-affiliates">🤝 Affiliate & Rewards <span id="affiliateAlertBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px;">0 ALERTS</span></button>
-                <button type="button" class="admin-tab-btn" data-tab="tab-courses">📚 Course & E-Book Manager</button>
-                <button type="button" class="admin-tab-btn" data-tab="tab-branding">🎨 Site Logo & Name</button>
-                <button type="button" class="admin-tab-btn" data-tab="tab-menus">🧭 Navigation Menus</button>
-                <button type="button" class="admin-tab-btn" data-tab="tab-content">📝 Page Content Editor</button>
+                <button type="button" class="admin-tab-btn active" data-tab="tab-orders" onclick="switchAdminTab('tab-orders')">📦 Orders &amp; UPI Setup</button>
+                <button type="button" class="admin-tab-btn" data-tab="tab-affiliates" onclick="switchAdminTab('tab-affiliates')">🤝 Affiliate &amp; Rewards <span id="affiliateAlertBadge" style="display:none; background:#ef4444; color:#fff; font-size:0.7rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-left:4px;">0 ALERTS</span></button>
+                <button type="button" class="admin-tab-btn" data-tab="tab-courses" onclick="switchAdminTab('tab-courses')">📚 Course &amp; E-Book Manager</button>
+                <button type="button" class="admin-tab-btn" data-tab="tab-branding" onclick="switchAdminTab('tab-branding')">🎨 Site Logo &amp; Name</button>
+                <button type="button" class="admin-tab-btn" data-tab="tab-menus" onclick="switchAdminTab('tab-menus')">🧭 Navigation Menus</button>
+                <button type="button" class="admin-tab-btn" data-tab="tab-content" onclick="switchAdminTab('tab-content')">📝 Page Content Editor</button>
             </div>
 
             <!-- ==========================================
@@ -1247,6 +1291,6 @@ Yahan chapter 2 ka content aayega..."></textarea>
     </div>
 
     <!-- Scripts -->
-    <script src="assets/js/admin.js?v=2.5"></script>
+    <script src="assets/js/admin.js?v=3.0"></script>
 </body>
 </html>

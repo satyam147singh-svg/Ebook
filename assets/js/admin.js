@@ -297,7 +297,9 @@ function setupAdminLogout() {
     const logoutBtn = document.getElementById("btnAdminLogout");
     if (logoutBtn) {
         logoutBtn.addEventListener("click", () => {
-            if (confirm("Kya aap Admin Portal se Logout karna chahte hain?")) {
+            if (typeof window.handleAdminLogout === "function") {
+                window.handleAdminLogout();
+            } else if (confirm("Kya aap Admin Portal se Logout karna chahte hain?")) {
                 sessionStorage.removeItem("antigravity_admin_session");
                 checkAdminAuth();
             }
@@ -728,25 +730,11 @@ const DEFAULT_PAGE_CONTENT = {
 // 1. ADMIN TABS SWITCHER
 function setupAdminTabs() {
     const tabButtons = document.querySelectorAll(".admin-tab-btn");
-    const tabPanes = document.querySelectorAll(".admin-tab-pane");
-
     tabButtons.forEach(btn => {
         btn.addEventListener("click", () => {
             const target = btn.getAttribute("data-tab");
-            tabButtons.forEach(b => b.classList.remove("active"));
-            tabPanes.forEach(p => p.classList.remove("active"));
-
-            btn.classList.add("active");
-            const activePane = document.getElementById(target);
-            if (activePane) activePane.classList.add("active");
-
-            if (target === "tab-affiliates") {
-                renderAffiliatesTable();
-                checkUrgentAffiliateAlerts();
-            } else if (target === "tab-courses") {
-                renderCoursesCatalog();
-            } else if (target === "tab-orders") {
-                renderOrdersTable();
+            if (typeof window.switchAdminTab === "function") {
+                window.switchAdminTab(target);
             }
         });
     });
