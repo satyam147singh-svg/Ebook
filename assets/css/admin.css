@@ -376,6 +376,7 @@
     opacity: 0;
     cursor: pointer;
     z-index: 10;
+    display: block;
 }
 
 .course-dropzone {
@@ -387,10 +388,11 @@
     cursor: pointer;
     transition: all 0.25s ease;
     user-select: none;
-    pointer-events: none; /* Clicks and drag events pass straight through to the native input! */
+    pointer-events: none; /* Clicks and drag events pass directly to the full-coverage file input! */
 }
 
 .course-dropzone-wrapper:hover .course-dropzone,
+.course-dropzone-wrapper.drag-active .course-dropzone,
 .course-dropzone.drag-active {
     border-color: #00f0ff;
     border-style: solid;

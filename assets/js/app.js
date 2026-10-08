@@ -142,6 +142,8 @@ function setupModals() {
             if (successSection) successSection.style.display = "none";
             updateDynamicPrices();
             populateBuyerProfile();
+            const consentCheckbox = document.getElementById("buyerConsentCheckbox");
+            if (consentCheckbox) consentCheckbox.checked = false;
             modal.classList.add("active");
             document.body.style.overflow = "hidden";
         });
@@ -191,7 +193,6 @@ function populateBuyerProfile() {
     if (nameEl && !nameEl.value && profile.name) nameEl.value = profile.name;
     if (emailEl && !emailEl.value && profile.email) emailEl.value = profile.email;
     if (phoneEl && !phoneEl.value && profile.phone) phoneEl.value = profile.phone;
-    if (consentCheckbox) consentCheckbox.checked = true;
 
     if (noticeEl && profile.name) {
         noticeEl.style.display = "flex";

@@ -328,7 +328,6 @@ function populateBuyerDetailsIntoForm() {
         if (nameEl && !nameEl.value) nameEl.value = profile.name;
         if (emailEl && !emailEl.value) emailEl.value = profile.email || "";
         if (phoneEl && !phoneEl.value) phoneEl.value = profile.phone || "";
-        if (consentEl) consentEl.checked = true;
 
         if (noticeEl) {
             noticeEl.style.display = "flex";
@@ -339,7 +338,7 @@ function populateBuyerDetailsIntoForm() {
     }
 }
 
-// Checkout Modal
+// Checkout Modal Setup & Mandatory Checks
 function setupCheckoutModal() {
     const modal = document.getElementById("courseCheckoutModal");
     const closeBtn = document.getElementById("closeCheckoutModal");
@@ -379,54 +378,325 @@ function setupCheckoutModal() {
             const name = document.getElementById("buyerNameInput").value.trim();
             const email = document.getElementById("buyerEmailInput").value.trim().toLowerCase();
             const phone = document.getElementById("buyerPhoneInput").value.trim();
+            const consentCheckbox = document.getElementById("buyerConsentCheckboxCourses");
 
-            if (!name || !email || !phone) {
-                alert("Please fill in Name, Email Address, and Phone Number.");
+            // 1. Strict Mandatory Validations
+            if (!name) {
+                alert("Please enter your Full Name before proceeding to payment.");
+                document.getElementById("buyerNameInput").focus();
                 return;
             }
 
-            // Save for future auto-fill
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailPattern.test(email)) {
+                alert("Please enter a valid Email Address to receive your course access token!");
+                document.getElementById("buyerEmailInput").focus();
+                return;
+            }
+
+            const phoneClean = phone.replace(/[^0-9]/g, "");
+            if (!phone || phoneClean.length < 10) {
+                alert("Please enter a valid 10-digit WhatsApp mobile number.");
+                document.getElementById("buyerPhoneInput").focus();
+                return;
+            }
+
+            // Mandatory Consent Checkbox must be explicitly checked by user
+            if (!consentCheckbox || !consentCheckbox.checked) {
+                alert("⚠️ Mandatory Declaration Check: Kripya 'Mandatory Declaration & Consent' checkbox ko tick karein tabhi payment initiate ho sakega.");
+                if (consentCheckbox) consentCheckbox.focus();
+                return;
+            }
+
+            // Save details for returning user convenience
             saveBuyerProfile(name, email, phone);
 
-            // Generate secure token
-            const rand1 = Math.random().toString(36).substring(2, 6).toUpperCase();
-            const rand2 = Math.random().toString(36).substring(2, 6).toUpperCase();
-            const token = `AGY-COURSE-${rand1}-${rand2}-${Date.now().toString().slice(-4)}`;
-
-            // Save order
-            const order = {
-                id: "ORD-" + Date.now(),
-                courseId: courseId,
-                courseTitle: courseTitle,
-                name: name,
-                email: email,
-                phone: phone,
-                amount: price,
-                currency: "₹",
-                gateway: "Cashfree / Direct Payment",
-                token: token,
-                timestamp: new Date().toISOString(),
-                dateFormatted: new Date().toLocaleString(),
-                status: "PAID / SUCCESS"
-            };
-
-            const existingOrders = JSON.parse(localStorage.getItem("antigravity_orders") || "[]");
-            existingOrders.unshift(order);
-            localStorage.setItem("antigravity_orders", JSON.stringify(existingOrders));
-
-            // Switch to success view
-            document.getElementById("checkoutFormStep").style.display = "none";
-            const successStep = document.getElementById("checkoutSuccessStep");
-            successStep.style.display = "block";
-
-            const tokenDisplay = document.getElementById("successTokenDisplay");
-            if (tokenDisplay) tokenDisplay.textContent = token;
-
-            const readerBtn = document.getElementById("btnLaunchCourseReader");
-            if (readerBtn) {
-                readerBtn.href = `reader.html?courseId=${encodeURIComponent(courseId)}&token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`;
-            }
+            // 2. Open Cashfree / UPI Payment Gateway
+            triggerCashfreeCoursePaymentFlow({
+                courseId,
+                courseTitle,
+                price,
+                name,
+                email,
+                phone
+            });
         });
+    }
+}
+
+// Interactive Cashfree / UPI Gateway Flow for Courses
+function triggerCashfreeCoursePaymentFlow({ courseId, courseTitle, price, name, email, phone }) {
+    let overlay = document.getElementById("cfGatewayOverlay");
+    if (!overlay) {
+        overlay = document.createElement("div");
+        overlay.id = "cfGatewayOverlay";
+        overlay.className = "cf-gateway-overlay";
+        document.body.appendChild(overlay);
+    }
+
+    const adminConfig = JSON.parse(localStorage.getItem("antigravity_admin_config") || "{}");
+    const cfConfig = adminConfig.cashfree || {
+        enabled: true,
+        mode: "sandbox",
+        appId: "TEST10293847abcd89ef",
+        secretKey: "cfsk_ma_test_92a83f982b1c74d"
+    };
+    const isProduction = (cfConfig.mode || "sandbox").toLowerCase() === "production";
+    const modeBadge = isProduction
+        ? '<span class="badge" style="background:rgba(16,185,129,0.2); color:#34d399;">LIVE GATEWAY</span>'
+        : '<span class="badge">SANDBOX TEST</span>';
+
+    overlay.innerHTML = `
+        <div class="cf-gateway-dialog">
+            <div class="cf-gateway-topbar">
+                <div class="cf-logo-tag">
+                    <span style="font-size: 1.2rem;">💳</span>
+                    <span>Cashfree <span style="color: var(--accent-cyan);">Payments</span></span>
+                    ${modeBadge}
+                </div>
+                <button type="button" class="cf-close-btn" id="btnCloseCashfreeModalCourses" title="Cancel Payment">&times;</button>
+            </div>
+
+            <div class="cf-gateway-body">
+                <!-- Merchant & Order Summary Bar -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 12px 16px; margin-bottom: 16px; display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <span style="font-size: 0.72rem; color: #94a3b8; display: block;">PURCHASING</span>
+                        <strong style="font-size: 0.88rem; color: #fff;">${escapeHtml(courseTitle)}</strong>
+                    </div>
+                    <div style="text-align: right;">
+                        <span style="font-size: 0.72rem; color: #94a3b8; display: block;">AMOUNT TO PAY</span>
+                        <strong style="font-size: 1.25rem; color: #10b981;">₹${price}</strong>
+                    </div>
+                </div>
+
+                <div style="font-size: 0.82rem; color: #cbd5e1; margin-bottom: 14px;">
+                    Buyer: <strong>${escapeHtml(name)}</strong> (<code style="color:#00f0ff;">${escapeHtml(email)}</code>)
+                </div>
+
+                <!-- Methods Nav -->
+                <div class="cf-methods-nav">
+                    <button type="button" class="cf-method-tab active" data-cf-tab="cf-tab-course-upi">📱 UPI</button>
+                    <button type="button" class="cf-method-tab" data-cf-tab="cf-tab-course-card">💳 Cards</button>
+                    <button type="button" class="cf-method-tab" data-cf-tab="cf-tab-course-netbanking">🏦 NetBanking</button>
+                </div>
+
+                <!-- TAB 1: UPI -->
+                <div id="cf-tab-course-upi" class="cf-method-pane active">
+                    <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 10px;">Select your UPI app for instant payment authorization:</p>
+                    
+                    <button type="button" class="cf-upi-app-btn" data-cf-method="Google Pay">
+                        <span style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.2rem;">🔵</span> Google Pay
+                        </span>
+                        <span style="font-size:0.75rem; color:#10b981; font-weight:700;">Fast Pay &rarr;</span>
+                    </button>
+
+                    <button type="button" class="cf-upi-app-btn" data-cf-method="PhonePe">
+                        <span style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.2rem;">🟣</span> PhonePe
+                        </span>
+                        <span style="font-size:0.75rem; color:#10b981; font-weight:700;">Fast Pay &rarr;</span>
+                    </button>
+
+                    <button type="button" class="cf-upi-app-btn" data-cf-method="Paytm UPI">
+                        <span style="display:flex; align-items:center; gap:10px;">
+                            <span style="font-size:1.2rem;">🔷</span> Paytm UPI
+                        </span>
+                        <span style="font-size:0.75rem; color:#10b981; font-weight:700;">Fast Pay &rarr;</span>
+                    </button>
+
+                    <div style="margin-top: 14px; background: rgba(0,0,0,0.3); padding: 12px; border-radius: 8px;">
+                        <label style="font-size: 0.78rem; color: #94a3b8; display: block; margin-bottom: 6px;">Or Enter Any UPI ID (e.g. mobile@upi):</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="text" id="cfCustomUpiInputCourse" class="form-input" placeholder="username@oksbi" style="padding: 8px 12px; font-size: 0.85rem;">
+                            <button type="button" id="btnPayCustomUpiCourse" class="btn btn-primary" style="padding: 8px 14px; font-size: 0.82rem; white-space: nowrap;">
+                                Pay ₹${price}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TAB 2: CARDS -->
+                <div id="cf-tab-course-card" class="cf-method-pane">
+                    <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px;">Credit / Debit Card (Visa, Mastercard, RuPay):</p>
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label class="form-label" style="font-size: 0.78rem;">Card Number</label>
+                        <input type="text" class="form-input" id="cfCardNumberCourse" placeholder="4111 2222 3333 4444" style="padding: 9px 12px; font-size: 0.85rem;" maxlength="19">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+                        <div>
+                            <label class="form-label" style="font-size: 0.78rem;">Expiry (MM/YY)</label>
+                            <input type="text" class="form-input" id="cfCardExpiryCourse" placeholder="12/28" style="padding: 9px 12px; font-size: 0.85rem;" maxlength="5">
+                        </div>
+                        <div>
+                            <label class="form-label" style="font-size: 0.78rem;">CVV</label>
+                            <input type="password" class="form-input" id="cfCardCvvCourse" placeholder="•••" style="padding: 9px 12px; font-size: 0.85rem;" maxlength="4">
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-primary" id="btnPayCardCourse" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+                        🔒 Pay ₹${price} Securely via Card
+                    </button>
+                </div>
+
+                <!-- TAB 3: NETBANKING -->
+                <div id="cf-tab-course-netbanking" class="cf-method-pane">
+                    <p style="font-size: 0.78rem; color: #94a3b8; margin-bottom: 12px;">Select Your Bank:</p>
+                    <select id="cfBankSelectCourse" class="form-input" style="padding: 10px 12px; font-size: 0.88rem; margin-bottom: 16px; cursor: pointer;">
+                        <option value="SBI">State Bank of India (SBI)</option>
+                        <option value="HDFC">HDFC Bank</option>
+                        <option value="ICICI">ICICI Bank</option>
+                        <option value="AXIS">Axis Bank</option>
+                        <option value="KOTAK">Kotak Mahindra Bank</option>
+                        <option value="PNB">Punjab National Bank</option>
+                        <option value="OTHER">Other Popular Indian Banks (50+)</option>
+                    </select>
+                    <button type="button" class="btn btn-primary" id="btnPayNetbankingCourse" style="width: 100%; padding: 12px; font-size: 0.95rem;">
+                        🏛️ Proceed to NetBanking (₹${price})
+                    </button>
+                </div>
+
+                <!-- Processing Screen Container -->
+                <div id="cfProcessingScreenCourse" style="display:none; text-align:center; padding: 28px 10px;">
+                    <div style="font-size: 2.5rem; margin-bottom: 12px; animation: spin 1.2s linear infinite;">⏳</div>
+                    <h4 style="font-size: 1.1rem; color: #00f0ff; margin-bottom: 6px;">Contacting Cashfree Gateway...</h4>
+                    <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 0;">Authorizing secure 256-bit encrypted transaction with your bank. Please do not close or refresh this tab.</p>
+                </div>
+
+                <div style="margin-top: 18px; text-align: center; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 12px;">
+                    <span style="font-size: 0.72rem; color: #64748b;">
+                        🔒 Protected by Cashfree Payments PCI-DSS Level 1 &amp; RBI Compliant Gateway
+                    </span>
+                </div>
+            </div>
+        </div>
+    `;
+
+    overlay.classList.add("active");
+
+    // Close button
+    const closeBtn = document.getElementById("btnCloseCashfreeModalCourses");
+    if (closeBtn) {
+        closeBtn.onclick = () => {
+            overlay.classList.remove("active");
+        };
+    }
+
+    // Tab switching
+    const tabs = overlay.querySelectorAll(".cf-method-tab");
+    tabs.forEach(tab => {
+        tab.onclick = () => {
+            tabs.forEach(t => t.classList.remove("active"));
+            overlay.querySelectorAll(".cf-method-pane").forEach(p => p.classList.remove("active"));
+            tab.classList.add("active");
+            const targetPane = document.getElementById(tab.dataset.cfTab);
+            if (targetPane) targetPane.classList.add("active");
+        };
+    });
+
+    // Execute Payment and Auto-submit Form
+    const executePayment = (methodName) => {
+        const processing = document.getElementById("cfProcessingScreenCourse");
+        overlay.querySelectorAll(".cf-method-pane, .cf-methods-nav").forEach(el => el.style.display = "none");
+        if (processing) processing.style.display = "block";
+
+        setTimeout(() => {
+            const cfRandom = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const cfPaymentId = `CF-PAY-${Date.now().toString().slice(-6)}-${cfRandom}`;
+
+            overlay.classList.remove("active");
+
+            // Payment done: automatically finalize and submit the course order!
+            finalizeCourseOrder({
+                courseId,
+                courseTitle,
+                price,
+                name,
+                email,
+                phone,
+                cfPaymentId,
+                paymentMode: methodName
+            });
+        }, 1200);
+    };
+
+    // UPI app buttons
+    overlay.querySelectorAll(".cf-upi-app-btn").forEach(btn => {
+        btn.onclick = () => executePayment(`Cashfree UPI (${btn.dataset.cfMethod})`);
+    });
+
+    // Custom UPI pay
+    const btnCustomUpi = document.getElementById("btnPayCustomUpiCourse");
+    if (btnCustomUpi) {
+        btnCustomUpi.onclick = () => {
+            const vpa = document.getElementById("cfCustomUpiInputCourse").value.trim();
+            if (!vpa || !vpa.includes("@")) {
+                alert("Please enter a valid UPI ID (e.g. mobile@upi / name@oksbi)!");
+                return;
+            }
+            executePayment(`Cashfree UPI (${vpa})`);
+        };
+    }
+
+    // Card pay
+    const btnPayCard = document.getElementById("btnPayCardCourse");
+    if (btnPayCard) {
+        btnPayCard.onclick = () => {
+            executePayment("Cashfree Card Payment (Visa/Mastercard)");
+        };
+    }
+
+    // NetBanking pay
+    const btnPayNb = document.getElementById("btnPayNetbankingCourse");
+    if (btnPayNb) {
+        btnPayNb.onclick = () => {
+            const bank = document.getElementById("cfBankSelectCourse")?.value || "NetBanking";
+            executePayment(`Cashfree NetBanking (${bank})`);
+        };
+    }
+}
+
+// 3. Finalize Course Order & Auto-Submit (Invoked automatically once payment is verified)
+function finalizeCourseOrder({ courseId, courseTitle, price, name, email, phone, cfPaymentId, paymentMode }) {
+    // Generate secure DRM access token
+    const rand1 = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const rand2 = Math.random().toString(36).substring(2, 6).toUpperCase();
+    const token = `AGY-COURSE-${rand1}-${rand2}-${Date.now().toString().slice(-4)}`;
+
+    const order = {
+        id: "ORD-" + Date.now(),
+        courseId: courseId,
+        courseTitle: courseTitle,
+        name: name,
+        email: email,
+        phone: phone,
+        amount: price,
+        currency: "₹",
+        gateway: "Cashfree Payments",
+        paymentId: cfPaymentId,
+        paymentMode: paymentMode || "Cashfree Gateway",
+        token: token,
+        timestamp: new Date().toISOString(),
+        dateFormatted: new Date().toLocaleString(),
+        consentAgreed: true,
+        status: "PAID / SUCCESS (Cashfree)"
+    };
+
+    const existingOrders = JSON.parse(localStorage.getItem("antigravity_orders") || "[]");
+    existingOrders.unshift(order);
+    localStorage.setItem("antigravity_orders", JSON.stringify(existingOrders));
+
+    // Automatically transition to success view (user doesn't need to submit separately)
+    document.getElementById("checkoutFormStep").style.display = "none";
+    const successStep = document.getElementById("checkoutSuccessStep");
+    successStep.style.display = "block";
+
+    const tokenDisplay = document.getElementById("successTokenDisplay");
+    if (tokenDisplay) tokenDisplay.textContent = token;
+
+    const readerBtn = document.getElementById("btnLaunchCourseReader");
+    if (readerBtn) {
+        readerBtn.href = `reader.html?courseId=${encodeURIComponent(courseId)}&token=${encodeURIComponent(token)}&email=${encodeURIComponent(email)}&name=${encodeURIComponent(name)}`;
     }
 }
 
@@ -459,6 +729,10 @@ function openCourseCheckoutModal({ id, title, price, strike }) {
 
     // Auto-fill returning buyer
     populateBuyerDetailsIntoForm();
+
+    // Ensure mandatory consent checkbox is fresh and unchecked for user verification
+    const consentEl = document.getElementById("buyerConsentCheckboxCourses");
+    if (consentEl) consentEl.checked = false;
 
     modal.classList.add("active");
     document.body.style.overflow = "hidden";

@@ -97,6 +97,7 @@
             } else if (targetId === "tab-courses") {
                 if (typeof renderCoursesCatalog === "function") renderCoursesCatalog();
                 if (typeof renderCurrentActiveBookNotice === "function") renderCurrentActiveBookNotice();
+                if (typeof setupCourseDropZoneAndUploader === "function") setupCourseDropZoneAndUploader();
             } else if (targetId === "tab-branding") {
                 if (typeof loadBrandingIntoForm === "function") loadBrandingIntoForm();
             } else if (targetId === "tab-menus") {
@@ -981,12 +982,13 @@
                         <!-- 1. Dropzone Upload Area -->
                         <div id="uploadModeSection">
                             <div class="course-dropzone-wrapper" id="courseDropWrapper">
-                                <input type="file" id="courseFileInput" accept=".txt,.md,.markdown,.html,.htm,.doc,.docx,.json,.rtf" class="course-file-input-overlay" title="Click anywhere or drag & drop file here to browse">
+                                <!-- Full-coverage transparent file input: works with both direct click & native drag and drop -->
+                                <input type="file" id="courseFileInput" accept=".pdf,.epub,.docx,.doc,.txt,.md,.markdown,.html,.htm,.json,.rtf,*/*" class="course-file-input-overlay" title="Click anywhere or drag & drop file here to browse">
                                 <div id="courseDropZone" class="course-dropzone">
                                     <div id="dropZoneIcon" style="font-size: 3.2rem; margin-bottom: 8px;">📄</div>
                                     <h4 id="dropZoneHeading" style="font-size: 1.18rem; color: #f8fafc; margin-bottom: 6px; font-weight: 700;">Drag & Drop your E-Book Document Here</h4>
                                     <p id="dropZoneSubheading" style="font-size: 0.88rem; color: #94a3b8; margin-bottom: 16px;">
-                                        Supported formats: <strong>.txt, .md (Markdown), .doc, .docx, .html, .json</strong>
+                                        Supported formats: <strong>.pdf, .docx, .doc, .txt, .md (Markdown), .html, .json, .epub</strong>
                                     </p>
                                     <span id="btnBrowseCourseFile" class="btn btn-secondary" style="padding: 10px 24px; font-size: 0.9rem; pointer-events: none; display: inline-block;">
                                         📁 Or Click to Browse File
