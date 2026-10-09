@@ -697,17 +697,19 @@ const DEFAULT_SITE_SETTINGS = {
     logoIcon: "⚡",
     footerText: "© 2026-2027 Google Antigravity Master Guide. All Rights Reserved. Protected by Digital Copyright.",
     navLinks: [
+        { label: "🛍️ All Courses", href: "courses.html" },
         { label: "Features", href: "#features" },
         { label: "9 Chapters", href: "#curriculum" },
         { label: "Pricing", href: "#pricing" },
         { label: "FAQ", href: "#faq" },
-        { label: "🤝 Earn ₹500", href: "#affiliate" }
+        { label: "🤝 Earn ₹500", href: "#affiliateModal" }
     ],
     footerLinks: [
+        { label: "🛍️ All Courses", href: "courses.html" },
         { label: "Features", href: "#features" },
         { label: "Chapters", href: "#curriculum" },
         { label: "Purchase", href: "#pricing" },
-        { label: "🤝 Earn ₹500", href: "#affiliate" },
+        { label: "🤝 Earn ₹500", href: "#affiliateModal" },
         { label: "Privacy Policy", href: "privacy-policy.html" },
         { label: "Reader", href: "reader.html" }
     ]
@@ -750,9 +752,17 @@ function getSiteSettings() {
             // Strip any legacy DRM security link
             if (Array.isArray(merged.navLinks)) {
                 merged.navLinks = merged.navLinks.filter(l => l.href !== "#security" && !l.label.toLowerCase().includes("drm"));
+                const hasCourses = merged.navLinks.some(l => (l.href && l.href.includes("courses.html")) || (l.label && l.label.toLowerCase().includes("course")));
+                if (!hasCourses) {
+                    merged.navLinks.unshift({ label: "🛍️ All Courses", href: "courses.html" });
+                }
             }
             if (Array.isArray(merged.footerLinks)) {
                 merged.footerLinks = merged.footerLinks.filter(l => l.href !== "#security" && !l.label.toLowerCase().includes("drm"));
+                const hasCourses = merged.footerLinks.some(l => (l.href && l.href.includes("courses.html")) || (l.label && l.label.toLowerCase().includes("course")));
+                if (!hasCourses) {
+                    merged.footerLinks.unshift({ label: "🛍️ All Courses", href: "courses.html" });
+                }
             }
             return merged;
         }

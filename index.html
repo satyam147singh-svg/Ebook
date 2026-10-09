@@ -353,6 +353,7 @@
     <footer class="footer">
         <div class="container">
             <div class="footer-links" id="footer-links-main">
+                <a href="courses.html" style="color: #00f0ff; font-weight: 700;">🛍️ All Courses</a>
                 <a href="#features" id="footer-link-features">Features</a>
                 <a href="#curriculum" id="footer-link-chapters">Chapters</a>
                 <a href="#pricing" id="footer-link-purchase">Purchase</a>
@@ -634,11 +635,53 @@
                 </div>
             </div>
 
-            <!-- Login / Lookup -->
-            <div id="affiliateLookupSection" style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
-                <h4 style="font-size: 0.95rem; color: #00f0ff; margin-bottom: 8px;">Check Your Live Referral Count & Earnings</h4>
+            <!-- SWITCHER TABS: JOIN NEW AFFILIATE vs CHECK EXISTING STATUS -->
+            <div id="affiliateActionTabs" style="display: flex; gap: 8px; margin-bottom: 18px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px;">
+                <button type="button" id="tabBtnAffiliateJoin" class="btn" style="flex: 1; padding: 10px 14px; font-size: 0.9rem; font-weight: 700; background: rgba(16, 185, 129, 0.2); border: 1px solid #10b981; color: #a7f3d0; border-radius: 8px; cursor: pointer;">
+                    🚀 1. Join & Get Free Link
+                </button>
+                <button type="button" id="tabBtnAffiliateLookup" class="btn" style="flex: 1; padding: 10px 14px; font-size: 0.9rem; font-weight: 600; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255,255,255,0.12); color: #94a3b8; border-radius: 8px; cursor: pointer;">
+                    🔍 2. Check Earnings / Status
+                </button>
+            </div>
+
+            <!-- VIEW 1: INSTANT JOIN FORM (100% FREE FOR ANYONE) -->
+            <div id="affiliateJoinSection" style="background: rgba(16, 185, 129, 0.06); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
+                    <h4 style="font-size: 1.05rem; color: #34d399; margin: 0; font-weight: 700;">
+                        ✨ Join Affiliate Program & Start Earning!
+                    </h4>
+                    <span style="font-size: 0.72rem; background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 8px; border-radius: 12px; font-weight: 700;">100% FREE</span>
+                </div>
+                <p style="font-size: 0.84rem; color: #cbd5e1; margin-bottom: 14px; line-height: 1.5;">
+                    Apni details bharein aur turant apna unique referral link prapt karein. Kisi purchase ki zaroorat nahi hai — har 5 paid users par direct ₹500 aapke UPI me transfer honge!
+                </p>
+                <form id="affiliateInstantJoinForm" onsubmit="return false;" style="display: flex; flex-direction: column; gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Aapka Pura Naam (Full Name):</label>
+                        <input type="text" id="affJoinName" class="form-input" placeholder="e.g. Rahul Sharma" required style="width: 100%; padding: 10px 12px; font-size: 0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">WhatsApp Number ya Email Address:</label>
+                        <input type="text" id="affJoinContact" class="form-input" placeholder="e.g. 9876543210 ya rahul@gmail.com" required style="width: 100%; padding: 10px 12px; font-size: 0.9rem;">
+                    </div>
+                    <div>
+                        <label style="font-size: 0.8rem; color: #94a3b8; display: block; margin-bottom: 4px;">Aapka Payout UPI ID (GPay / PhonePe / Paytm):</label>
+                        <input type="text" id="affJoinUpi" class="form-input" placeholder="e.g. rahul@oksbi / 9876543210@paytm" required style="width: 100%; padding: 10px 12px; font-size: 0.9rem;">
+                        <small style="color: #64748b; font-size: 0.72rem; display: block; margin-top: 3px;">Har 5 paid buyers complete hone par ₹500 isi UPI ID par credit honge.</small>
+                    </div>
+                    <button type="button" id="btnSubmitJoinAffiliate" class="btn btn-primary" style="margin-top: 4px; padding: 12px; font-size: 0.95rem; font-weight: 700; background: linear-gradient(135deg, #10b981, #00f0ff); color: #070913; border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); cursor: pointer;">
+                        ⚡ Get My Personal Affiliate Link Now
+                    </button>
+                </form>
+            </div>
+
+            <!-- VIEW 2: LOGIN / LOOKUP (EXISTING PARTNER OR BUYER) -->
+            <div id="affiliateLookupSection" style="display: none; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 18px; margin-bottom: 20px;">
+                <h4 style="font-size: 0.95rem; color: #00f0ff; margin-bottom: 8px;">Check Live Referral Count, Progress & Payout</h4>
+                <p style="font-size: 0.82rem; color: #94a3b8; margin-bottom: 12px;">Apna Affiliate Token, E-Book Access Pass ya Registered Email/Phone enter karein:</p>
                 <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                    <input type="text" id="affiliateTokenLookup" class="form-input" placeholder="Enter your Access Token or Email..." style="flex: 1; min-width: 220px;">
+                    <input type="text" id="affiliateTokenLookup" class="form-input" placeholder="Token / Email / Phone..." style="flex: 1; min-width: 220px;">
                     <button type="button" id="btnCheckAffiliateStats" class="btn btn-primary" style="padding: 10px 18px; font-size: 0.9rem; white-space: nowrap;">Check Status 🔍</button>
                 </div>
             </div>
@@ -650,9 +693,14 @@
                         <strong style="color: #34d399; font-size: 1.1rem;" id="affiliatePartnerName">Partner Dashboard</strong>
                         <span style="display: block; font-size: 0.8rem; color: #94a3b8;" id="affiliatePartnerToken">Token: AGY-EBK-XXXX</span>
                     </div>
-                    <div style="text-align: right;">
-                        <span style="font-size: 0.8rem; color: #94a3b8;">Target Progress:</span>
-                        <strong style="display: block; font-size: 1.2rem; color: #00f0ff;" id="affiliateSalesCountDisplay">0 / 5 Sales</strong>
+                    <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" id="btnSwitchAffiliateAccount" style="padding: 5px 10px; font-size: 0.75rem; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 6px; cursor: pointer;">
+                            🔄 Switch Account
+                        </button>
+                        <div style="text-align: right;">
+                            <span style="font-size: 0.78rem; color: #94a3b8;">Target Progress:</span>
+                            <strong style="display: block; font-size: 1.15rem; color: #00f0ff;" id="affiliateSalesCountDisplay">0 / 5 Sales</strong>
+                        </div>
                     </div>
                 </div>
 

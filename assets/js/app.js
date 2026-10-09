@@ -745,74 +745,267 @@ support@antigravityguide.in`;
     }
 }
 
-// Setup Standalone Affiliate Partner Modal
-function setupAffiliateModal() {
+// Universal Affiliate Modal Controller
+function openAffiliateModal() {
     const modal = document.getElementById("affiliateModal");
-    const openBtns = document.querySelectorAll(".btn-open-affiliate");
-    const closeBtn = document.getElementById("closeAffiliateModal");
-    const closeBottomBtn = document.getElementById("btnCloseAffiliateModalBottom");
+    if (!modal) {
+        window.location.href = "index.html#affiliateModal";
+        return;
+    }
 
-    if (!modal) return;
+    modal.classList.add("active");
+    document.body.style.overflow = "hidden";
 
-    openBtns.forEach(btn => {
-        btn.addEventListener("click", (e) => {
-            e.preventDefault();
-            modal.classList.add("active");
-            document.body.style.overflow = "hidden";
+    // Close mobile menu if active
+    const mobileMenu = document.getElementById("mobile-menu");
+    if (mobileMenu) mobileMenu.classList.remove("active");
 
-            // If user already purchased recently in this browser, auto-load their stats
-            const orders = JSON.parse(localStorage.getItem("antigravity_orders") || "[]");
-            if (orders.length > 0) {
-                renderAffiliatePartnerDashboard(orders[0].token);
-            }
-        });
-    });
+    // Check if user already has an active partner session or recent order
+    const activeToken = localStorage.getItem("antigravity_active_affiliate");
+    const affiliates = JSON.parse(localStorage.getItem("antigravity_affiliates") || "{}");
+    const orders = JSON.parse(localStorage.getItem("antigravity_orders") || "[]");
 
-    const closeModal = () => {
+    if (activeToken && affiliates[activeToken]) {
+        renderAffiliatePartnerDashboard(activeToken);
+    } else if (orders.length > 0 && orders[0].token) {
+        renderAffiliatePartnerDashboard(orders[0].token);
+    } else {
+        // Show join tab by default for new visitors
+        switchAffiliateTab("join");
+    }
+}
+
+function closeAffiliateModal() {
+    const modal = document.getElementById("affiliateModal");
+    if (modal) {
         modal.classList.remove("active");
         document.body.style.overflow = "";
-    };
+    }
+}
 
-    if (closeBtn) closeBtn.addEventListener("click", closeModal);
-    if (closeBottomBtn) closeBottomBtn.addEventListener("click", closeModal);
+function switchAffiliateTab(tab) {
+    const joinSec = document.getElementById("affiliateJoinSection");
+    const lookupSec = document.getElementById("affiliateLookupSection");
+    const dashSec = document.getElementById("affiliatePartnerDashboard");
+    const tabJoinBtn = document.getElementById("tabBtnAffiliateJoin");
+    const tabLookupBtn = document.getElementById("tabBtnAffiliateLookup");
 
-    modal.addEventListener("click", (e) => {
-        if (e.target === modal) closeModal();
+    if (dashSec) dashSec.style.display = "none";
+
+    if (tab === "lookup") {
+        if (joinSec) joinSec.style.display = "none";
+        if (lookupSec) lookupSec.style.display = "block";
+        if (tabJoinBtn) {
+            tabJoinBtn.style.background = "rgba(255, 255, 255, 0.05)";
+            tabJoinBtn.style.borderColor = "rgba(255, 255, 255, 0.12)";
+            tabJoinBtn.style.color = "#94a3b8";
+        }
+        if (tabLookupBtn) {
+            tabLookupBtn.style.background = "rgba(0, 240, 255, 0.15)";
+            tabLookupBtn.style.borderColor = "#00f0ff";
+            tabLookupBtn.style.color = "#00f0ff";
+        }
+    } else {
+        if (joinSec) joinSec.style.display = "block";
+        if (lookupSec) lookupSec.style.display = "none";
+        if (tabJoinBtn) {
+            tabJoinBtn.style.background = "rgba(16, 185, 129, 0.2)";
+            tabJoinBtn.style.borderColor = "#10b981";
+            tabJoinBtn.style.color = "#a7f3d0";
+        }
+        if (tabLookupBtn) {
+            tabLookupBtn.style.background = "rgba(255, 255, 255, 0.05)";
+            tabLookupBtn.style.borderColor = "rgba(255, 255, 255, 0.12)";
+            tabLookupBtn.style.color = "#94a3b8";
+        }
+    }
+}
+
+// Setup Standalone Affiliate Partner Modal & Delegated Events
+function setupAffiliateModal() {
+    // 1. Delegated click listener for opening / closing affiliate modal
+    document.addEventListener("click", (e) => {
+        // Open Affiliate Modal Triggers
+        const affBtn = e.target.closest(
+            '.btn-open-affiliate, a[href="#affiliateModal"], a[href="#affiliate"], a[href*="affiliateModal"], [data-action="open-affiliate"]'
+        );
+        if (affBtn) {
+            e.preventDefault();
+            openAffiliateModal();
+            return;
+        }
+
+        // Also catch nav/footer links with text containing "Earn ₹500" or "affiliate"
+        const navOrFooterLink = e.target.closest("a, button");
+        if (navOrFooterLink && (navOrFooterLink.closest(".navbar") || navOrFooterLink.closest(".mobile-menu") || navOrFooterLink.closest(".footer"))) {
+            const txt = (navOrFooterLink.textContent || "").toLowerCase();
+            const href = (navOrFooterLink.getAttribute("href") || "").toLowerCase();
+            if (txt.includes("earn ₹500") || txt.includes("earn ?500") || href.includes("affiliate")) {
+                e.preventDefault();
+                openAffiliateModal();
+                return;
+            }
+        }
+
+        // Close triggers
+        if (e.target.matches("#closeAffiliateModal, #btnCloseAffiliateModalBottom, .close-affiliate-modal") ||
+            e.target.closest("#closeAffiliateModal, #btnCloseAffiliateModalBottom, .close-affiliate-modal")) {
+            closeAffiliateModal();
+            return;
+        }
+
+        // Backdrop click
+        const modal = document.getElementById("affiliateModal");
+        if (modal && e.target === modal) {
+            closeAffiliateModal();
+            return;
+        }
     });
 
-    // Lookup token/email
-    const btnCheck = document.getElementById("btnCheckAffiliateStats");
-    const inputLookup = document.getElementById("affiliateTokenLookup");
-    if (btnCheck && inputLookup) {
-        btnCheck.addEventListener("click", () => {
-            const query = inputLookup.value.trim().toLowerCase();
-            if (!query) {
-                alert("Please enter your Access Token or Email.");
+    // 2. Tab Buttons
+    const tabJoinBtn = document.getElementById("tabBtnAffiliateJoin");
+    const tabLookupBtn = document.getElementById("tabBtnAffiliateLookup");
+    if (tabJoinBtn) tabJoinBtn.addEventListener("click", () => switchAffiliateTab("join"));
+    if (tabLookupBtn) tabLookupBtn.addEventListener("click", () => switchAffiliateTab("lookup"));
+
+    // 3. Switch account button in dashboard
+    const btnSwitchAcc = document.getElementById("btnSwitchAffiliateAccount");
+    if (btnSwitchAcc) {
+        btnSwitchAcc.addEventListener("click", () => {
+            switchAffiliateTab("join");
+        });
+    }
+
+    // 4. Instant Join Free Affiliate Form Submission
+    const btnJoin = document.getElementById("btnSubmitJoinAffiliate");
+    if (btnJoin) {
+        btnJoin.addEventListener("click", () => {
+            const nameEl = document.getElementById("affJoinName");
+            const contactEl = document.getElementById("affJoinContact");
+            const upiEl = document.getElementById("affJoinUpi");
+
+            const name = nameEl ? nameEl.value.trim() : "";
+            const contact = contactEl ? contactEl.value.trim() : "";
+            const upi = upiEl ? upiEl.value.trim() : "";
+
+            if (!name) {
+                alert("Kripya apna Pura Naam (Full Name) enter karein.");
+                if (nameEl) nameEl.focus();
+                return;
+            }
+            if (!contact) {
+                alert("Kripya apna WhatsApp number ya Email address enter karein.");
+                if (contactEl) contactEl.focus();
+                return;
+            }
+            if (!upi || !upi.includes("@")) {
+                alert("Kripya valid Payout UPI ID enter karein (e.g. name@oksbi ya number@paytm).\nIsi par aapka ₹500 payout bheja jayega!");
+                if (upiEl) upiEl.focus();
                 return;
             }
 
-            const orders = JSON.parse(localStorage.getItem("antigravity_orders") || "[]");
-            const match = orders.find(o => o.token.toLowerCase() === query || o.email.toLowerCase() === query);
+            // Generate unique affiliate partner code
+            const randomCode = Math.floor(100000 + Math.random() * 900000);
+            const partnerToken = `AFF-${randomCode}`;
 
-            if (match) {
-                renderAffiliatePartnerDashboard(match.token);
-            } else {
-                // Check if exists directly in affiliates
-                const affiliates = JSON.parse(localStorage.getItem("antigravity_affiliates") || "{}");
-                const affMatch = Object.values(affiliates).find(a => (a.token && a.token.toLowerCase() === query) || (a.email && a.email.toLowerCase() === query));
-                if (affMatch) {
-                    renderAffiliatePartnerDashboard(affMatch.token);
-                } else {
-                    alert("No purchase found with this Token or Email. Please purchase the E-Book first to activate your personal affiliate partner link!");
+            const affiliates = JSON.parse(localStorage.getItem("antigravity_affiliates") || "{}");
+            affiliates[partnerToken] = {
+                token: partnerToken,
+                name: name,
+                email: contact.includes("@") ? contact : "",
+                phone: !contact.includes("@") ? contact : "",
+                upiId: upi,
+                sales: 0,
+                referralCount: 0,
+                orders: [],
+                payoutStatus: "PENDING",
+                createdAt: new Date().toISOString()
+            };
+
+            localStorage.setItem("antigravity_affiliates", JSON.stringify(affiliates));
+            localStorage.setItem("antigravity_active_affiliate", partnerToken);
+
+            renderAffiliatePartnerDashboard(partnerToken);
+            alert(`🎉 Mubarak ho ${name}!\nAapka Official Affiliate Account activate ho gaya hai!\n\nAapka Referral Code: ${partnerToken}\nNiche aapka personal share link ready hai. Ise copy karke WhatsApp/Social Media par share karein!`);
+        });
+    }
+
+    // 5. Existing Partner / Buyer Lookup
+    const btnCheck = document.getElementById("btnCheckAffiliateStats");
+    const inputLookup = document.getElementById("affiliateTokenLookup");
+    if (btnCheck && inputLookup) {
+        const handleLookup = () => {
+            const query = inputLookup.value.trim().toLowerCase();
+            if (!query) {
+                alert("Kripya apna Referral Token, Email ya Phone number enter karein.");
+                return;
+            }
+
+            const affiliates = JSON.parse(localStorage.getItem("antigravity_affiliates") || "{}");
+            const orders = JSON.parse(localStorage.getItem("antigravity_orders") || "[]");
+
+            let matchedToken = null;
+
+            // Search direct affiliates
+            for (const [tok, aff] of Object.entries(affiliates)) {
+                if (tok.toLowerCase() === query ||
+                    (aff.email && aff.email.toLowerCase() === query) ||
+                    (aff.phone && aff.phone.toLowerCase() === query) ||
+                    (aff.name && aff.name.toLowerCase() === query)) {
+                    matchedToken = tok;
+                    break;
                 }
             }
+
+            // Search in customer orders
+            if (!matchedToken) {
+                const orderMatch = orders.find(o =>
+                    (o.token && o.token.toLowerCase() === query) ||
+                    (o.email && o.email.toLowerCase() === query) ||
+                    (o.phone && o.phone.toLowerCase() === query)
+                );
+                if (orderMatch) {
+                    matchedToken = orderMatch.token;
+                    if (!affiliates[matchedToken]) {
+                        initBuyerAffiliateProfile(orderMatch.token, orderMatch.name, orderMatch.email, orderMatch.phone);
+                    }
+                }
+            }
+
+            if (matchedToken) {
+                localStorage.setItem("antigravity_active_affiliate", matchedToken);
+                renderAffiliatePartnerDashboard(matchedToken);
+            } else {
+                alert("Koi affiliate account nahi mila. Agar aap naye hain, toh '1. Join & Get Free Link' tab par click karke turant apna free referral link generate karein!");
+            }
+        };
+
+        btnCheck.addEventListener("click", handleLookup);
+        inputLookup.addEventListener("keypress", (e) => {
+            if (e.key === "Enter") handleLookup();
         });
+    }
+
+    // 6. Listen for URL hash changes (#affiliate or #affiliateModal)
+    window.addEventListener("hashchange", () => {
+        if (window.location.hash === "#affiliateModal" || window.location.hash === "#affiliate") {
+            setTimeout(openAffiliateModal, 100);
+        }
+    });
+
+    if (window.location.hash === "#affiliateModal" || window.location.hash === "#affiliate") {
+        setTimeout(openAffiliateModal, 300);
     }
 }
 
 // Render dynamic stats inside Affiliate Modal
 function renderAffiliatePartnerDashboard(token) {
     const dashboard = document.getElementById("affiliatePartnerDashboard");
+    const joinSec = document.getElementById("affiliateJoinSection");
+    const lookupSec = document.getElementById("affiliateLookupSection");
+
+    if (joinSec) joinSec.style.display = "none";
+    if (lookupSec) lookupSec.style.display = "none";
     if (!dashboard) return;
 
     dashboard.style.display = "block";
@@ -824,18 +1017,22 @@ function renderAffiliatePartnerDashboard(token) {
         token: token,
         name: userOrder.name || "Affiliate Partner",
         sales: 0,
+        referralCount: 0,
         orders: [],
         upiId: "",
         paidRewards: 0
     };
 
+    // Calculate real sales from orders database as well
+    const partnerReferredOrders = orders.filter(o => o.refToken && o.refToken.toLowerCase() === token.toLowerCase());
+    const salesCount = Math.max(partnerReferredOrders.length, affData.sales || affData.referralCount || 0);
+
     const nameEl = document.getElementById("affiliatePartnerName");
     if (nameEl) nameEl.textContent = `${affData.name || userOrder.name || 'Partner'}'s Dashboard`;
 
     const tokenEl = document.getElementById("affiliatePartnerToken");
-    if (tokenEl) tokenEl.textContent = `Token: ${token}`;
+    if (tokenEl) tokenEl.textContent = `Token / Code: ${token}`;
 
-    const salesCount = affData.sales || 0;
     const targetRemainder = salesCount % 5;
     const completedTargets = Math.floor(salesCount / 5);
 
@@ -854,14 +1051,16 @@ function renderAffiliatePartnerDashboard(token) {
     if (badgeAlert) {
         if (completedTargets > 0) {
             badgeAlert.style.display = "block";
-            badgeAlert.innerHTML = `🎉 <strong>Congratulations! Target Met (${completedTargets * 5} Total Sales)!</strong> Total Reward: ₹${completedTargets * 500}. Admin will transfer payment to your UPI within 2 business days.`;
+            badgeAlert.innerHTML = `🎉 <strong>Congratulations! Target Met (${completedTargets * 5} Total Sales)!</strong> Total Reward: ₹${completedTargets * 500}. Admin will transfer payment to your UPI (${affData.upiId || 'saved UPI'}) within 2 business days.`;
         } else {
             badgeAlert.style.display = "none";
         }
     }
 
-    const baseUrl = window.location.origin + window.location.pathname.replace("index.html", "") + "index.html";
-    const personalRefLink = `${baseUrl}?ref=${token}`;
+    // Generate accurate base URL for referral link
+    const currentLoc = window.location.href.split("#")[0].split("?")[0];
+    const baseUrl = currentLoc.endsWith("/") ? currentLoc + "index.html" : currentLoc.replace(/courses\.html|course\.html|reader\.html|privacy-policy\.html/, "index.html");
+    const personalRefLink = baseUrl.includes("index.html") ? `${baseUrl}?ref=${token}` : `${baseUrl}/index.html?ref=${token}`;
 
     const linkInput = document.getElementById("activeAffiliateLinkInput");
     if (linkInput) linkInput.value = personalRefLink;
@@ -870,7 +1069,15 @@ function renderAffiliatePartnerDashboard(token) {
     if (copyBtn) {
         copyBtn.onclick = () => {
             navigator.clipboard.writeText(personalRefLink).then(() => {
-                alert("Affiliate Referral Link copied to clipboard!");
+                const orig = copyBtn.textContent;
+                copyBtn.textContent = "Copied! ✓";
+                copyBtn.style.color = "#10b981";
+                setTimeout(() => {
+                    copyBtn.textContent = orig;
+                    copyBtn.style.color = "";
+                }, 2000);
+            }).catch(() => {
+                alert("Affiliate Referral Link: " + personalRefLink);
             });
         };
     }
@@ -879,9 +1086,9 @@ function renderAffiliatePartnerDashboard(token) {
     const btnHindiMsg = document.getElementById("btnCopyModalHindiMsg");
     if (btnHindiMsg) {
         btnHindiMsg.onclick = () => {
-            const msg = `🚀 *Google Antigravity Master Guide — AI Se Coding & Software Banao!*\n\nKya aap bhi AI se 10x fast websites, mobile apps aur SaaS banana chahte hain? Maine abhi Google Antigravity Master Guide unlock ki hai — isme complete 9 chapters, terminal setup aur readymade prompt blueprints hain!\n\n🎯 Abhi launch offer me sirf ₹199 me direct access karein yahan se:\n👉 ${personalRefLink}\n\n(Direct UPI instant access available!)`;
+            const msg = `🚀 *Google Antigravity Master Guide — AI Se Coding & Software Banao!*\n\nKya aap bhi AI se 10x fast websites, mobile apps aur SaaS banana chahte hain? Maine abhi Google Antigravity Master Guide dekhi hai — isme complete 9 chapters, terminal setup aur readymade prompt blueprints hain!\n\n🎯 Abhi special offer me direct access karein yahan se:\n👉 ${personalRefLink}\n\n(Direct UPI & Cashfree instant access available!)`;
             navigator.clipboard.writeText(msg).then(() => {
-                alert("Hindi/Hinglish promotional message copied!");
+                alert("Hindi/Hinglish promotional message copied! Paste & share on WhatsApp or Telegram.");
             });
         };
     }
@@ -889,9 +1096,9 @@ function renderAffiliatePartnerDashboard(token) {
     const btnEnglishMsg = document.getElementById("btnCopyModalEnglishMsg");
     if (btnEnglishMsg) {
         btnEnglishMsg.onclick = () => {
-            const msg = `🚀 *Google Antigravity Master Guide — Autonomous AI Coding Platform*\n\nWant to build full-stack web applications, SaaS tools, and bots in record time with AI? Check out the complete step-by-step Google Antigravity documentation with 9 practical chapters, setup guides, and production prompts!\n\n🎯 Get instant lifetime access for just ₹199:\n👉 ${personalRefLink}\n\n(Instant access with encrypted web reader!)`;
+            const msg = `🚀 *Google Antigravity Master Guide — Autonomous AI Coding Platform*\n\nWant to build full-stack web applications, SaaS tools, and bots in record time with AI? Check out the complete step-by-step Google Antigravity documentation with 9 practical chapters, setup guides, and production prompts!\n\n🎯 Get instant lifetime access here:\n👉 ${personalRefLink}\n\n(Instant access with encrypted DRM web reader!)`;
             navigator.clipboard.writeText(msg).then(() => {
-                alert("English promotional message copied!");
+                alert("English promotional message copied! Paste & share anywhere.");
             });
         };
     }
@@ -1247,30 +1454,60 @@ function applyGlobalSiteSettings() {
             if (footerCopy) footerCopy.textContent = siteSettings.footerText;
         }
 
+        // Helper to format nav/footer link with proper styling
+        const formatNavLinkHtml = (link, isFooter = false) => {
+            const href = link.href || "#";
+            const label = link.label || "";
+            const isAff = href.includes("affiliate") || label.includes("500") || label.toLowerCase().includes("affiliate");
+            const isCourses = href.includes("courses.html") || label.toLowerCase().includes("all course") || label.toLowerCase().includes("courses");
+
+            if (isCourses) {
+                const coursesStyle = ' style="color: #00f0ff; font-weight: 700;"';
+                if (isFooter) {
+                    return `<a href="courses.html"${coursesStyle}>${label}</a>`;
+                }
+                return `<li><a href="courses.html" id="nav-link-courses"${coursesStyle}>${label}</a></li>`;
+            }
+
+            const finalHref = isAff ? "#affiliateModal" : href;
+            const affClass = isAff ? ' class="btn-open-affiliate"' : '';
+            const affStyle = isAff ? ' style="color: #10b981; font-weight: 600;"' : '';
+            if (isFooter) {
+                return `<a href="${finalHref}"${affClass}${affStyle}>${label}</a>`;
+            }
+            return `<li><a href="${finalHref}"${affClass}${affStyle}>${label}</a></li>`;
+        };
+
         // 2. Navigation Links
         if (Array.isArray(siteSettings.navLinks) && siteSettings.navLinks.length > 0) {
             const navContainer = document.getElementById("main-nav-links");
             const mobileNavContainer = document.getElementById("mobile-nav-links");
 
+            // Guarantee "🛍️ All Courses" is always present as the first item in the menu
+            let navList = [...siteSettings.navLinks];
+            const hasCourses = navList.some(l => (l.href && l.href.includes("courses.html")) || (l.label && l.label.toLowerCase().includes("course")));
+            if (!hasCourses) {
+                navList.unshift({ label: "🛍️ All Courses", href: "courses.html" });
+            }
+
             if (navContainer) {
-                navContainer.innerHTML = siteSettings.navLinks
-                    .map(link => `<li><a href="${link.href}">${link.label}</a></li>`)
-                    .join("");
+                navContainer.innerHTML = navList.map(l => formatNavLinkHtml(l, false)).join("");
             }
             if (mobileNavContainer) {
-                mobileNavContainer.innerHTML = siteSettings.navLinks
-                    .map(link => `<li><a href="${link.href}">${link.label}</a></li>`)
-                    .join("");
+                mobileNavContainer.innerHTML = navList.map(l => formatNavLinkHtml(l, false)).join("");
             }
         }
 
         // 3. Footer Links
         if (Array.isArray(siteSettings.footerLinks) && siteSettings.footerLinks.length > 0) {
             const footerLinksContainer = document.getElementById("footer-links-main");
+            let footList = [...siteSettings.footerLinks];
+            const hasCourses = footList.some(l => (l.href && l.href.includes("courses.html")) || (l.label && l.label.toLowerCase().includes("course")));
+            if (!hasCourses) {
+                footList.unshift({ label: "🛍️ All Courses", href: "courses.html" });
+            }
             if (footerLinksContainer) {
-                footerLinksContainer.innerHTML = siteSettings.footerLinks
-                    .map(link => `<a href="${link.href}">${link.label}</a>`)
-                    .join("");
+                footerLinksContainer.innerHTML = footList.map(l => formatNavLinkHtml(l, true)).join("");
             }
         }
 
