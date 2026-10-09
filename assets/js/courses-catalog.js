@@ -124,7 +124,22 @@ let ALL_COURSES = [];
 let ACTIVE_CATEGORY = "ALL";
 let SEARCH_QUERY = "";
 
+function applyCoursesCatalogSiteSettings() {
+    try {
+        const siteSettings = JSON.parse(localStorage.getItem("antigravity_site_settings") || "{}");
+        if (siteSettings.logoIcon) {
+            const logoIcon = document.getElementById("site-logo-icon");
+            if (logoIcon) logoIcon.textContent = siteSettings.logoIcon;
+        }
+        if (siteSettings.siteName) {
+            const navSiteName = document.getElementById("site-name-nav");
+            if (navSiteName) navSiteName.innerHTML = siteSettings.siteName;
+        }
+    } catch (e) {}
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    applyCoursesCatalogSiteSettings();
     ALL_COURSES = getStoredCourses();
     renderCoursesGrid();
     setupSearchAndFilters();

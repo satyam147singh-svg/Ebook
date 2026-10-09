@@ -25,7 +25,78 @@ function escapeHtml(str) {
 
 let CURRENT_COURSE = null;
 
+// Apply Global Site Branding (Logo & Site Name) & Clean Navigation on Course Page
+function applyCoursePageSiteSettings() {
+    try {
+        const siteSettings = JSON.parse(localStorage.getItem("antigravity_site_settings") || "{}");
+
+        // 1. Logo Icon & Site Name
+        if (siteSettings.logoIcon) {
+            const logoIcon = document.getElementById("site-logo-icon");
+            if (logoIcon) logoIcon.textContent = siteSettings.logoIcon;
+        }
+
+        if (siteSettings.siteName) {
+            const navSiteName = document.getElementById("site-name-nav");
+            if (navSiteName) navSiteName.innerHTML = siteSettings.siteName;
+            const plainName = siteSettings.siteName.replace(/<[^>]*>?/gm, '');
+            if (CURRENT_COURSE && CURRENT_COURSE.title) {
+                document.title = `${CURRENT_COURSE.title} - ${plainName}`;
+            }
+        }
+
+        // 2. Navigation Menu Links
+        if (Array.isArray(siteSettings.navLinks) && siteSettings.navLinks.length > 0) {
+            const navContainer = document.getElementById("main-nav-links");
+            const mobileNavContainer = document.getElementById("mobile-nav-links");
+
+            const formatCourseNavLink = (link) => {
+                let href = link.href || "#";
+                let label = link.label || "";
+
+                if (href === "#pricing" || href === "#curriculum") {
+                    // Internal section on course page
+                } else if (href.includes("affiliate")) {
+                    href = "index.html#affiliateModal";
+                } else if (href.startsWith("#")) {
+                    href = `index.html${href}`;
+                }
+
+                const isCourses = href.includes("courses.html") || label.toLowerCase().includes("course");
+                const isAff = href.includes("affiliate") || label.includes("500") || label.toLowerCase().includes("affiliate");
+
+                let style = "";
+                if (isCourses) style = ' style="color: #00f0ff; font-weight: 700;"';
+                else if (isAff) style = ' style="color: #10b981; font-weight: 600;"';
+
+                return `<li><a href="${href}"${style}>${label}</a></li>`;
+            };
+
+            let navList = [...siteSettings.navLinks];
+            const hasCourses = navList.some(l => (l.href && l.href.includes("courses.html")) || (l.label && l.label.toLowerCase().includes("course")));
+            if (!hasCourses) {
+                navList.unshift({ label: "🛍️ All Courses", href: "courses.html" });
+            }
+
+            const hasHome = navList.some(l => l.href === "index.html" || l.label.toLowerCase().includes("home"));
+            if (!hasHome) {
+                navList.unshift({ label: "🏠 Home", href: "index.html" });
+            }
+
+            if (navContainer) {
+                navContainer.innerHTML = navList.map(formatCourseNavLink).join("");
+            }
+            if (mobileNavContainer) {
+                mobileNavContainer.innerHTML = navList.map(formatCourseNavLink).join("");
+            }
+        }
+    } catch (e) {
+        console.error("Error applying course page site settings:", e);
+    }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
+    applyCoursePageSiteSettings();
     loadCourseData();
     renderCourseLandingPage();
     setupCourseCheckoutModal();
@@ -81,8 +152,13 @@ function renderCourseLandingPage() {
     const lc = c.landingConfig || {};
     const templateId = lc.templateId || "template_tech";
 
+    // Apply Global Branding
+    applyCoursePageSiteSettings();
+
     // Set Document Titles & Meta
-    document.title = `${c.title} - Antigravity Academy`;
+    const siteSettings = JSON.parse(localStorage.getItem("antigravity_site_settings") || "{}");
+    const plainSiteName = (siteSettings.siteName || "AntigravityGuide").replace(/<[^>]*>?/gm, '');
+    document.title = `${c.title} - ${plainSiteName}`;
     const metaDesc = document.getElementById("pageMetaDesc");
     if (metaDesc) metaDesc.content = c.subtitle || c.title;
 
